@@ -23,7 +23,23 @@ ms3    <- normalizePath(list.files(system.file("proteomics", package = "msdata")
 b <- ChromoteSession$new(width = 1440, height = 900)
 on.exit(b$close(), add = TRUE)
 js   <- function(code) b$Runtime$evaluate(code)$result$value
-shot <- function(name, pause = 1.5) { Sys.sleep(pause); b$screenshot(file.path(figdir, name)); message("  ", name) }
+# Wait until the app is idle: no Shiny busy flag, no VISIBLE greyed-out
+# (recalculating) output (outputs on hidden tabs stay flagged while suspended)
+# and no progress toast, for `settle` consecutive seconds. Fixed sleeps alone
+# caught plots mid-render (blank or greyed) whenever a read took longer.
+idle <- function(timeout = 180, settle = 3) {
+  calm <- 0; t0 <- Sys.time()
+  while (calm < settle && difftime(Sys.time(), t0, units = "secs") < timeout) {
+    Sys.sleep(1)
+    busy <- isTRUE(js("document.documentElement.classList.contains('shiny-busy') || [...document.querySelectorAll('.recalculating')].some(e => e.offsetParent !== null) || document.querySelector('.shiny-notification:has(.progress)') !== null"))
+    calm <- if (busy) 0 else calm + 1
+  }
+  if (calm < settle) message("  (still busy after ", timeout, " s)")
+}
+shot <- function(name, pause = 1.5) {
+  Sys.sleep(pause); idle(); Sys.sleep(1)
+  b$screenshot(file.path(figdir, name)); message("  ", name)
+}
 
 # Set a text/numeric input's value and notify Shiny (more reliable than
 # setInputValue for widget-backed inputs), then click controls by element id.
@@ -60,7 +76,7 @@ b$Page$loadEventFired(); Sys.sleep(5)
 message("loading faahKO ...")
 typeinto("ingest-folder", faahko); Sys.sleep(1); click("ingest-add_folder")
 waitrows(6)                                     # 6 files read via the mirai queue
-Sys.sleep(2); incl_all(); Sys.sleep(3)
+Sys.sleep(2); idle(); incl_all(); Sys.sleep(3)
 shot("tic.png", 6)                              # Files panel (with Mode column) + TIC overlay
 
 # Filters: collapse Files, expand Filters (sidebar accordion is single-open).
@@ -81,10 +97,10 @@ js("(()=>{const x=[...document.querySelectorAll('.modal-footer button,.modal [da
 Sys.sleep(1)
 
 message("MS map ...")
-nav("MS map"); Sys.sleep(1)
+nav("MS map"); Sys.sleep(1); idle()
 click("map-plot"); shot("msmap.png", 12)
 js("(()=>{const r=document.querySelector('input[name=\"map-mode\"][value=\"surface\"]');if(r)r.click();return true})()")
-Sys.sleep(1); click("map-plot"); shot("msmap3d.png", 12)
+Sys.sleep(1); idle(); click("map-plot"); shot("msmap3d.png", 12)
 
 ## --- MS3TMT11: profile mode, peak-picking panel, DDA precursors ------------
 message("clearing, loading MS3TMT11 (profile) ...")
@@ -117,7 +133,7 @@ setev("spec-iso_elements", "['C','H','N','O','P','S','F','Cl','Br']")
 setev("spec-iso_valid", "false"); setev("spec-iso_res", 60000)
 for (i in 1:20) { Sys.sleep(1)                        # wait for the candidate table
   if (isTRUE(js("(()=>{const t=document.getElementById('spec-iso_cands');return t?t.querySelectorAll('tbody tr').length:0})()") > 0)) break }
-Sys.sleep(3)                                          # let the plot settle, then zoom LAST
+idle()                                                # let the plot settle, then zoom LAST
 js("(()=>{const gd=document.getElementById('spec-plot');if(gd&&window.Plotly)Plotly.relayout(gd,{'xaxis.range':[580.5,586.5],'xaxis.autorange':false,'yaxis.autorange':true});return true})()")
 shot("isotope.png", 2)                                # envelope over the raw profile cluster
 
