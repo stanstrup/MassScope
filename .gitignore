@@ -24,3 +24,6 @@ Rplots.pdf
 
 # pkgdown built site
 /docs/
+
+# Hex sticker, fetched at build time (tools/fetch_logo.R)
+/man/figures/logo.*

@@ -1,4 +1,4 @@
-# MassScope
+# MassScope <img src="https://stanstrup.github.io/stanstrup-hexstickers/png/MassScope.png" align="right" height="139" alt="MassScope hex sticker" />
 
 A local Shiny desktop app for interactively visualising **raw LC-MS data** on the
 RforMassSpectrometry stack (`Spectra` / `MsExperiment` / `xcms`) — TIC/BPC,
