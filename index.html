@@ -104,7 +104,7 @@
 <div class="section level2">
 <h2 id="deploy-with-docker">Deploy with Docker<a class="anchor" aria-label="anchor" href="#deploy-with-docker"></a>
 </h2>
-<p>A <code>Dockerfile</code> (based on the Bioconductor image) runs the app as a server:</p>
+<p>A <code>Dockerfile</code> (<code>rocker/r-ver</code> with prebuilt Linux binaries from Posit Package Manager for both CRAN and Bioconductor, so it builds in minutes) runs the app as a server:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">-t</span> massscope .</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 3838:3838 <span class="at">-v</span> /path/to/ms-data:/data massscope</span></code></pre></div>
 <p>Open <a href="http://localhost:3838" class="external-link uri">http://localhost:3838</a> and paste <code>/data</code> (your mounted files) into the Files box. Mount a volume at <code>/root/.config/R</code> to persist settings across restarts.</p>

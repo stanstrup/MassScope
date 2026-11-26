@@ -101,9 +101,13 @@ on the <em>precursors</em>:</p>
 <strong>spectrum id</strong> rules select which MS2 scans are shown, as
 everywhere else.</li>
 <li>
-<strong>m/z</strong> and <strong>intensity</strong> act on the
-precursor <em>m/z</em> (the y axis) and the precursor intensity. A
+<strong>Intensity</strong> acts on the precursor intensity. A
 precursor whose intensity the file does not report is kept.</li>
+<li>The global <strong>m/z</strong> filter is <em>not</em> used here: it
+selects peaks (on an MS2 spectrum, fragment <em>m/z</em>), which is a
+different thing from the precursor <em>m/z</em>. Narrow the y axis with
+the tab’s own <strong>Precursor m/z</strong> range in the side panel
+instead; leave a box empty for an open end.</li>
 <li>The <strong>MS level</strong> filter is ignored unless it names an
 MSn level (2, 3, …): the default MS1 setting would otherwise leave the
 map empty.</li>

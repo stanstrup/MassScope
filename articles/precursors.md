@@ -20,9 +20,13 @@ The global **Filters** apply here too, read as filters on the
 
 - **Retention time**, **polarity** and **spectrum id** rules select
   which MS2 scans are shown, as everywhere else.
-- **m/z** and **intensity** act on the precursor *m/z* (the y axis) and
-  the precursor intensity. A precursor whose intensity the file does not
-  report is kept.
+- **Intensity** acts on the precursor intensity. A precursor whose
+  intensity the file does not report is kept.
+- The global **m/z** filter is *not* used here: it selects peaks (on an
+  MS2 spectrum, fragment *m/z*), which is a different thing from the
+  precursor *m/z*. Narrow the y axis with the tab’s own **Precursor
+  m/z** range in the side panel instead; leave a box empty for an open
+  end.
 - The **MS level** filter is ignored unless it names an MSn level (2, 3,
   …): the default MS1 setting would otherwise leave the map empty.
 

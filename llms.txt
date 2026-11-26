@@ -59,8 +59,9 @@ website](https://stanstrup.github.io/MassScope/):
 
 ## Deploy with Docker
 
-A `Dockerfile` (based on the Bioconductor image) runs the app as a
-server:
+A `Dockerfile` (`rocker/r-ver` with prebuilt Linux binaries from Posit
+Package Manager for both CRAN and Bioconductor, so it builds in minutes)
+runs the app as a server:
 
 ``` sh
 docker build -t massscope .
