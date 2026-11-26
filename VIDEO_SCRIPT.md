@@ -1,4 +1,4 @@
-# xcmsVisGUI — feature showcase video script
+# MassScope — feature showcase video script
 
 A shot-by-shot script for a screen-recorded walkthrough (~8–9 min). The
 through-line is **compound identification from raw LC–MS**, and the
@@ -44,7 +44,7 @@ public paths in R with `system.file(...)`:
 **\[SCREEN\]** - Title card, then cut to the app open on **TIC / BPC**
 with a file loaded and a chromatogram on screen.
 
-**\[VO\]** - xcmsVisGUI is a local app for reading *raw* LC–MS data by
+**\[VO\]** - MassScope is a local app for reading *raw* LC–MS data by
 eye — before any peak picking or alignment. - I use it mostly to figure
 out what a compound actually is. - There’s one loop I run over and over:
 chromatogram → spectrum → extract the ions → back to the spectrum. Let

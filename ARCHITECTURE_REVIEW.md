@@ -1,4 +1,4 @@
-# Architecture review — xcmsVisGUI
+# Architecture review — MassScope
 
 Date: 2026-06-05 (file refs updated 2026-06-06 for the package
 conversion). Method: two independent reviewers analysed the full
@@ -265,7 +265,7 @@ decisions don’t get re-litigated.
 
 - **Converted the sourced app into an installable R package.** `app.R` +
   the side-effecting tail of `global.R` → exported
-  [`run_app()`](https://stanstrup.github.io/xcmsVisGUI/reference/run_app.md)
+  [`run_app()`](https://stanstrup.github.io/MassScope/reference/run_app.md)
   in `R/run_app.R`; `global.R` split into `R/zzz.R` (`.onLoad` →
   `register(SerialParam())`), `R/constants.R`, `R/daemons.R`. Imports
   declared per-function via roxygen; NAMESPACE/`man/` are generated. The
@@ -287,10 +287,9 @@ decisions don’t get re-litigated.
 
 - **Settings persist across restarts** — allow-listed fields written as
   JSON to the per-user config dir
-  (`tools::R_user_dir("xcmsVisGUI","config")`,
-  `R/fct_settings_store.R`). Chosen over an in-package file so a normal
-  install is writable. Added a **default EIC tolerance** setting
-  (value + ppm/Da).
+  (`tools::R_user_dir("MassScope","config")`, `R/fct_settings_store.R`).
+  Chosen over an in-package file so a normal install is writable. Added
+  a **default EIC tolerance** setting (value + ppm/Da).
 - **Persistent extraction cache** (`R/fct_cache.R`) — heavy `bindCache`
   results (TIC/BPC + EIC tibbles) go into a **layered memory + disk**
   cache: memory is the fast in-session primary, disk is the persistent

@@ -13,7 +13,7 @@ Multiple EICs across files
 There are three ways to add targets — they all append to the same table:
 
 - **Click peaks in the Spectrum tab.** Clicking a peak on the
-  [Spectrum](https://stanstrup.github.io/xcmsVisGUI/articles/spectrum.md)
+  [Spectrum](https://stanstrup.github.io/MassScope/articles/spectrum.md)
   view adds its *m/z* to this list (its default click action). This is
   the usual workflow: open a spectrum, click the ions you care about,
   then come here to see their chromatograms.
@@ -28,7 +28,7 @@ ppm spans 20 ppm total — widen it if traces look too narrow. Untick a
 row’s checkbox to drop it from the plot without deleting it; **Remove
 selected** deletes rows. The default tolerance/unit for new targets come
 from
-[Settings](https://stanstrup.github.io/xcmsVisGUI/articles/getting_started.html#settings).
+[Settings](https://stanstrup.github.io/MassScope/articles/getting_started.html#settings).
 
 ## Display
 
@@ -54,7 +54,7 @@ The global **Filters** (MS level, intensity, …) apply to the extraction.
 ## Moving between tabs
 
 **Click any EIC trace** to send that file and retention time to the
-[Spectrum](https://stanstrup.github.io/xcmsVisGUI/articles/spectrum.md)
+[Spectrum](https://stanstrup.github.io/MassScope/articles/spectrum.md)
 tab, then switch to it to read the spectrum at that point — handy for
 confirming a co-eluting ion or checking peak purity.
 

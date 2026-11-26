@@ -1,4 +1,4 @@
-# Launch xcmsVisGUI.
+# Launch MassScope.
 
 Performs the one-time runtime setup (mirai daemon pool, large-upload
 option; SerialParam is registered on package load) and starts the Shiny

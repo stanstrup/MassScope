@@ -16,12 +16,12 @@ control in this tab’s panel, default *Centroid profile scans*). This is
 the view that needs it: mapping a profile file raw means tens of
 millions of points — one test file goes from 29 million points (690 MB)
 to 2 million (48 MB) once picked. (The
-[Spectrum](https://stanstrup.github.io/xcmsVisGUI/articles/spectrum.md)
+[Spectrum](https://stanstrup.github.io/MassScope/articles/spectrum.md)
 view defaults to raw — it can afford to.) Set it to *Raw* to map every
 sample, but expect it to be slow. The setting, and its S/N / half-window
 / *m/z*-refinement sub-options, take effect on the next **Plot**. See
 [Getting
-started](https://stanstrup.github.io/xcmsVisGUI/articles/getting_started.html#profile-mode-data).
+started](https://stanstrup.github.io/MassScope/articles/getting_started.html#profile-mode-data).
 
 ## 3D views
 
@@ -36,7 +36,7 @@ cutoff) are set in the sidebar.
 ## Moving between tabs
 
 **Click a pixel** on the 2-D map to send that retention time to the
-[Spectrum](https://stanstrup.github.io/xcmsVisGUI/articles/spectrum.md)
+[Spectrum](https://stanstrup.github.io/MassScope/articles/spectrum.md)
 tab (for the first included file); switch to the Spectrum tab to read
 the full scan there. It’s a fast way to go from “there’s a spot here” to
 the actual mass spectrum.

@@ -18,7 +18,7 @@ The TIC overlay across included files
   lines.
 
 Retention time uses the display unit set in
-[Settings](https://stanstrup.github.io/xcmsVisGUI/articles/getting_started.html#settings),
+[Settings](https://stanstrup.github.io/MassScope/articles/getting_started.html#settings),
 and the MS level / intensity / spectrum-ID filters from the **Filters**
 panel apply here too.
 
@@ -26,7 +26,7 @@ panel apply here too.
 
 **Click any trace** to send that file and retention time to the
 **Spectrum** tab; switch to the
-[Spectrum](https://stanstrup.github.io/xcmsVisGUI/articles/spectrum.md)
+[Spectrum](https://stanstrup.github.io/MassScope/articles/spectrum.md)
 tab to view the scan at that point. This is the quickest way to inspect
 “what is under this peak?” — find a feature on the TIC, click it, and
 read its mass spectrum.
@@ -35,5 +35,5 @@ read its mass spectrum.
 
 **Save** writes a static png/svg/pdf (or the raw ggplot `.rds`) using
 the
-[Settings](https://stanstrup.github.io/xcmsVisGUI/articles/getting_started.html#settings)
+[Settings](https://stanstrup.github.io/MassScope/articles/getting_started.html#settings)
 export defaults.

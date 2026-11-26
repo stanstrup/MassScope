@@ -1,6 +1,6 @@
 # Getting started
 
-xcmsVisGUI is a local Shiny desktop app for exploring **raw** LC-MS data
+MassScope is a local Shiny desktop app for exploring **raw** LC-MS data
 interactively — TIC/BPC, extracted-ion chromatograms, spectra (with
 adduct / isotope / fragment annotation, including formula-based fine
 isotope patterns), 2D/3D maps and DDA precursors. It centroids profile
@@ -11,16 +11,15 @@ or retention-time alignment.
 This page covers the cross-cutting basics — launching, loading files,
 filtering, settings and export. Each plot view then has its own guide:
 
-- [TIC /
-  BPC](https://stanstrup.github.io/xcmsVisGUI/articles/tic_bpc.md) —
-  total- and base-peak chromatograms
-- [EIC](https://stanstrup.github.io/xcmsVisGUI/articles/eic.md) —
+- [TIC / BPC](https://stanstrup.github.io/MassScope/articles/tic_bpc.md)
+  — total- and base-peak chromatograms
+- [EIC](https://stanstrup.github.io/MassScope/articles/eic.md) —
   extracted-ion chromatograms
-- [Spectrum](https://stanstrup.github.io/xcmsVisGUI/articles/spectrum.md)
+- [Spectrum](https://stanstrup.github.io/MassScope/articles/spectrum.md)
   — single spectra, the scan-list browser, and annotation
-- [MS map](https://stanstrup.github.io/xcmsVisGUI/articles/ms_map.md) —
+- [MS map](https://stanstrup.github.io/MassScope/articles/ms_map.md) —
   2D and 3D *m/z* × time maps
-- [Precursors](https://stanstrup.github.io/xcmsVisGUI/articles/precursors.md)
+- [Precursors](https://stanstrup.github.io/MassScope/articles/precursors.md)
   — DDA precursor-ion map
 
 The screenshots come from example LC-MS runs — a positive-mode QTOF
@@ -30,14 +29,14 @@ Bioconductor.
 ## Launch
 
 Install it first (see the
-[README](https://github.com/stanstrup/xcmsVisGUI#install)), then the app
+[README](https://github.com/stanstrup/MassScope#install)), then the app
 is the exported function
-[`run_app()`](https://stanstrup.github.io/xcmsVisGUI/reference/run_app.md):
+[`run_app()`](https://stanstrup.github.io/MassScope/reference/run_app.md):
 
 ``` r
 
 # installed:
-xcmsVisGUI::run_app()
+MassScope::run_app()
 
 # or from a clone (no install needed):
 # Rscript run.R

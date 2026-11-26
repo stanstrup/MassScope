@@ -2,7 +2,7 @@
 
 This page collects the contributor-facing details. For the design
 rationale and decision log, see
-[`ARCHITECTURE_REVIEW.md`](https://github.com/stanstrup/xcmsVisGUI/blob/main/ARCHITECTURE_REVIEW.md)
+[`ARCHITECTURE_REVIEW.md`](https://github.com/stanstrup/MassScope/blob/main/ARCHITECTURE_REVIEW.md)
 in the repository.
 
 ## Status
@@ -33,7 +33,7 @@ the raw ggplot object (`.rds`) for later tweaking in R.
 ## Run from a clone
 
 This is an R package; the app is the exported
-[`run_app()`](https://stanstrup.github.io/xcmsVisGUI/reference/run_app.md).
+[`run_app()`](https://stanstrup.github.io/MassScope/reference/run_app.md).
 From a fresh clone, install the dependencies once into your normal R
 library, then launch:
 
@@ -118,7 +118,7 @@ taken. The plot is zoomed to the anchor’s isotope cluster **last**
       zzz.R                # .onLoad: register BiocParallel SerialParam (the perf fix)
       constants.R          # MS-file constants, palette names, rt-unit helpers
       daemons.R            # mirai daemon pool + per-run setup
-      xcmsVisGUI-package.R # roxygen import declarations + globalVariables
+      MassScope-package.R # roxygen import declarations + globalVariables
       mod_ingest.R         # typed-path / choose.dir / fileInput + async mirai reader + file list
       mod_settings.R       # palette, rt unit, default tolerance, daemon count, export; persistence
       mod_filter.R         # global rt/mz/MS-level/polarity/intensity + spectrum-id rules

@@ -10,12 +10,12 @@ A single spectrum
 ## Choosing the spectrum
 
 - **Arrive by clicking.** Clicking a trace on the
-  [TIC/BPC](https://stanstrup.github.io/xcmsVisGUI/articles/tic_bpc.md)
-  or [EIC](https://stanstrup.github.io/xcmsVisGUI/articles/eic.md) view,
+  [TIC/BPC](https://stanstrup.github.io/MassScope/articles/tic_bpc.md)
+  or [EIC](https://stanstrup.github.io/MassScope/articles/eic.md) view,
   a pixel on the [MS
-  map](https://stanstrup.github.io/xcmsVisGUI/articles/ms_map.md), or a
+  map](https://stanstrup.github.io/MassScope/articles/ms_map.md), or a
   point on the
-  [Precursors](https://stanstrup.github.io/xcmsVisGUI/articles/precursors.md)
+  [Precursors](https://stanstrup.github.io/MassScope/articles/precursors.md)
   view fills in the file and retention time here — so you usually reach
   this tab by clicking, not typing.
 - **Type a retention time**, or an **acquisition scan number**
@@ -41,7 +41,7 @@ settings then appear), or **Raw + centroids overlay** to draw the picked
 centroids on top of the raw line — then a click can land on the true
 centroid. **Show data points** overlays the individual detector samples.
 See [Getting
-started](https://stanstrup.github.io/xcmsVisGUI/articles/getting_started.html#profile-mode-data).
+started](https://stanstrup.github.io/MassScope/articles/getting_started.html#profile-mode-data).
 
 ![A profile-mode scan drawn as a line, with the Peak-picking
 panel](figures/spectrum_profile.png)
@@ -55,10 +55,10 @@ against.
 ## From spectrum to EIC
 
 **Click a peak** to add its *m/z* to the
-[EIC](https://stanstrup.github.io/xcmsVisGUI/articles/eic.md) target
-list (the default click action). Click the ions you want, then open the
-EIC tab to extract their chromatograms across files. (When annotation is
-on you can switch the click action to *set anchor* instead — see below.)
+[EIC](https://stanstrup.github.io/MassScope/articles/eic.md) target list
+(the default click action). Click the ions you want, then open the EIC
+tab to extract their chromatograms across files. (When annotation is on
+you can switch the click action to *set anchor* instead — see below.)
 
 ## Scan list
 

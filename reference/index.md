@@ -2,11 +2,11 @@
 
 ## Launch the app
 
-- [`run_app()`](https://stanstrup.github.io/xcmsVisGUI/reference/run_app.md)
-  : Launch xcmsVisGUI.
+- [`run_app()`](https://stanstrup.github.io/MassScope/reference/run_app.md)
+  : Launch MassScope.
 
 ## package
 
-- [`xcmsVisGUI`](https://stanstrup.github.io/xcmsVisGUI/reference/xcmsVisGUI-package.md)
-  [`xcmsVisGUI-package`](https://stanstrup.github.io/xcmsVisGUI/reference/xcmsVisGUI-package.md)
-  : xcmsVisGUI: interactive raw LC-MS viewer (Shiny)
+- [`MassScope`](https://stanstrup.github.io/MassScope/reference/MassScope-package.md)
+  [`MassScope-package`](https://stanstrup.github.io/MassScope/reference/MassScope-package.md)
+  : MassScope: interactive raw LC-MS viewer (Shiny)

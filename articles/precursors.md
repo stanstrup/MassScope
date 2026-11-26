@@ -30,10 +30,10 @@ The global **Filters** apply here too, read as filters on the
 
 **Click a precursor point** to send its file, retention time and
 precursor *m/z* to the
-[Spectrum](https://stanstrup.github.io/xcmsVisGUI/articles/spectrum.md)
+[Spectrum](https://stanstrup.github.io/MassScope/articles/spectrum.md)
 tab; switch there to view the corresponding MS2 spectrum — and from that
 spectrum you can click fragment peaks straight into the
-[EIC](https://stanstrup.github.io/xcmsVisGUI/articles/eic.md) list.
+[EIC](https://stanstrup.github.io/MassScope/articles/eic.md) list.
 
 ## Export
 

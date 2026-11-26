@@ -1,4 +1,4 @@
-# CLAUDE.md — working notes for xcmsVisGUI
+# CLAUDE.md — working notes for MassScope
 
 Read this before changing anything. It captures the non-obvious
 decisions, the performance traps, and the conventions this codebase
@@ -27,11 +27,11 @@ picking / grouping / alignment (deferred; see `ARCHITECTURE_REVIEW.md` →
   present there — they are for 4.6.0.)
 - **This is now an R package.** `R/` is package code (loaded via the
   namespace, not Shiny-auto-sourced); the app is the exported
-  [`run_app()`](https://stanstrup.github.io/xcmsVisGUI/reference/run_app.md).
+  [`run_app()`](https://stanstrup.github.io/MassScope/reference/run_app.md).
   Launch headless:
   `Rscript -e "pkgload::load_all('.'); run_app(port=7799, launch.browser=FALSE)"`
   (or `Rscript run.R`, which load_all’s + launches). Installed:
-  [`xcmsVisGUI::run_app()`](https://stanstrup.github.io/xcmsVisGUI/reference/run_app.md).
+  [`MassScope::run_app()`](https://stanstrup.github.io/MassScope/reference/run_app.md).
 - Tests (testthat, edition 3): `Rscript -e "testthat::test_local('.')"`
   (dev, load_all) or `R CMD check`. Real-data tests
   (filter-equivalence + extraction smoke) SKIP when msdata/faahKO are
@@ -61,7 +61,7 @@ test suite) gets it.
 
 Consequences baked into the architecture: - `.onLoad` (`R/zzz.R`) calls
 `BiocParallel::register(SerialParam())`. **Do not remove it.**
-([`run_app()`](https://stanstrup.github.io/xcmsVisGUI/reference/run_app.md)
+([`run_app()`](https://stanstrup.github.io/MassScope/reference/run_app.md)
 adds the mirai daemon pool + large-upload option; daemons are NOT
 spawned on package load.) - File-list **header summaries** are read with
 **raw mzR** (`read_ms_header`, ~0.1 s) in mirai workers — even
@@ -83,7 +83,7 @@ SnowParam default upstream, the SerialParam workaround can be dropped.
   `meta` (id/name/path/group), `data_key` (paths + filter), a cached
   `raw_msexp` (`build_msexp`, keyed on path set) and `dataset` (=
   `apply_filters(raw)`).
-  [`run_app()`](https://stanstrup.github.io/xcmsVisGUI/reference/run_app.md)
+  [`run_app()`](https://stanstrup.github.io/MassScope/reference/run_app.md)
   does runtime setup + `shinyApp` + `runApp`. **`included` is
   `debounce`d** (`SELECTION_DEBOUNCE_MS`): it is the root of every
   extraction, and each tick in the file list writes one row of
@@ -94,7 +94,7 @@ SnowParam default upstream, the SerialParam workaround can be dropped.
 - **Package layout (not an app-dir):** what was `global.R` is split into
   `R/zzz.R` (`.onLoad` → SerialParam), `R/constants.R` (constants + rt
   helpers), `R/daemons.R` (`set_daemons`/`setup_runtime`).
-  `R/xcmsVisGUI-package.R` holds the roxygen import declarations;
+  `R/MassScope-package.R` holds the roxygen import declarations;
   NAMESPACE/`man/` are roxygen-generated — don’t hand-edit.
 - Central reactive state: `make_rv()` in `R/utils_reactive.R`
   (rv$`files, rv`$eic_targets, rv$`selection, rv`$filter, rv\$settings).
@@ -223,7 +223,7 @@ SnowParam default upstream, the SerialParam workaround can be dropped.
   `clear_disk_cache`.
 - **Settings persist** across restarts (`fct_settings_store.R`): an
   allow-list (`.PERSISTED_SETTINGS`) is written as JSON to
-  `R_user_dir("xcmsVisGUI","config")` (not the package dir — must work
+  `R_user_dir("MassScope","config")` (not the package dir — must work
   for a normal install). Restored on startup, saved debounced.
 - **Cross-plot nav** via `rv$selection` (list: plot, file_id, rt\[sec\],
   mz). A plotly `key = sample_id` aesthetic carries the file id into
