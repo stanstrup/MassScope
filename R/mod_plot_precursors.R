@@ -16,11 +16,16 @@ mod_plot_precursors_ui <- function(id) {
         selectInput(ns("color_by"), "Color by",
                     c("File" = "sample_name", "Sample group" = "sample_group",
                       "None" = "none")),
+        tags$label(class = "control-label", "Precursor m/z"),
+        div(class = "d-flex gap-2",
+            numericInput(ns("pmz_min"), NULL, value = NA, step = 0.0001, width = "100%"),
+            numericInput(ns("pmz_max"), NULL, value = NA, step = 0.0001, width = "100%")),
         helpText("Uses the included files that contain MS2. Click a point to ",
                  "view its spectrum."),
         helpText("Filters apply to the precursors: rt, polarity and spectrum id ",
-                 "as usual; m/z and intensity act on the precursor m/z / ",
-                 "intensity. An MS1 level filter is ignored here.")
+                 "as usual; intensity acts on the precursor intensity. The ",
+                 "global m/z filter (peaks) is not used here; set the precursor ",
+                 "m/z range above. An MS1 level filter is ignored here.")
       ),
       plotlyOutput(ns("plot"), height = "100%")
     )
@@ -41,13 +46,21 @@ mod_plot_precursors_server <- function(id, rv, included) {
       inc[has2, , drop = FALSE]
     })
 
+    # Own precursor m/z range, independent of the global (peak) m/z filter.
+    # Debounced so typing a number does not re-read every file per keystroke.
+    pmz_range <- debounce(reactive({
+      num <- function(v) if (is.null(v) || !is.finite(v)) NA_real_ else v
+      c(num(input$pmz_min), num(input$pmz_max))
+    }), 500)
+
     prec_df <- reactive({
       f2 <- ms2_files()
       validate(need(nrow(f2) > 0,
                     "No included file contains MS2 spectra (need DDA data)."))
       withProgress(message = "Reading precursors\u2026", value = 0.5, {
         flt <- rv$filter
-        extract_over_files(f2, function(p) extract_precursors(p, flt),
+        pr <- pmz_range()
+        extract_over_files(f2, function(p) extract_precursors(p, flt, pr),
                            cols = c("sample_id", "sample_name", "sample_group"),
                            on_error = notify_read_failures)
       })

@@ -304,13 +304,18 @@ precursor_tip <- function(pmz) {
 #' - rt / polarity / spectrum-id select which MSn spectra are shown, as usual;
 #' - the MS level is honoured only when it is an MSn level — the default filter is
 #'   MS1, and taken literally it would empty the map every time;
-#' - m/z and intensity are peak-level filters on a spectrum, but the map has no
-#'   fragment axis: they are applied to the precursor m/z / precursor intensity
-#'   (the y axis and what was isolated). A precursor whose intensity the file
+#' - the global m/z filter is NOT used: it selects peaks (fragment m/z on an MSn
+#'   spectrum), which is a different quantity from the precursor m/z. The map's
+#'   y axis is filtered by its own `pmz_range` instead (the Precursors tab's
+#'   "Precursor m/z" boxes), so narrowing peaks elsewhere never empties this map;
+#' - intensity is a peak-level filter too, but the map has no fragment axis, so it
+#'   is applied to the precursor intensity. A precursor whose intensity the file
 #'   does not report is kept rather than dropped on a missing value.
+#' @param pmz_range length-2 precursor m/z range; NA ends are open.
 #' @importFrom tibble tibble
 #' @noRd
-extract_precursors <- function(path, f = empty_filter()) {
+extract_precursors <- function(path, f = empty_filter(),
+                               pmz_range = c(NA_real_, NA_real_)) {
   sp <- get_spectra(path)
   sf <- f
   if (!isTRUE(is.finite(sf$ms_level) && sf$ms_level > 1)) sf$ms_level <- NA_integer_
@@ -321,9 +326,8 @@ extract_precursors <- function(path, f = empty_filter()) {
                    error = function(e) rep(NA_real_, length(sp)))
   scn <- tryCatch(Spectra::acquisitionNum(sp), error = function(e) rep(NA_integer_, length(sp)))
   keep <- ms > 1 & is.finite(pmz) & pmz > 0
-  if (isTRUE(is.finite(f$mz_min) || is.finite(f$mz_max))) {
-    r <- .flt_mz(f); keep <- keep & pmz >= r[1] & pmz <= r[2]
-  }
+  if (isTRUE(is.finite(pmz_range[1]))) keep <- keep & pmz >= pmz_range[1]
+  if (isTRUE(is.finite(pmz_range[2]))) keep <- keep & pmz <= pmz_range[2]
   ii <- .flt_int(f)
   if (!is.null(ii)) {
     known <- is.finite(pint) & pint > 0

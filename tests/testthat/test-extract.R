@@ -82,7 +82,7 @@ test_that("file_scan_table maps the CDF base peak sentinel to NA", {
   expect_true(all(is.na(st$basePeakIntensity)))
 })
 
-test_that("extract_precursors applies the global filter with precursor semantics", {
+test_that("extract_precursors: precursor semantics, own precursor m/z range", {
   skip_if_not_installed("msdata")
   p <- normalizePath(list.files(system.file("proteomics", package = "msdata"),
                                 full.names = TRUE, pattern = "mzML$")[1])
@@ -98,13 +98,18 @@ test_that("extract_precursors applies the global filter with precursor semantics
   expect_true(nrow(d) > 0 && nrow(d) < nrow(all))
   expect_true(all(d$rt >= rr[1] & d$rt <= rr[2]))
 
-  # m/z acts on the precursor m/z (the map's y axis).
+  # The global (peak) m/z filter does not touch the precursor map ...
   f <- empty_filter()
   mr <- stats::quantile(all$precursorMZ, c(0.25, 0.75), names = FALSE)
   f$mz_min <- mr[1]; f$mz_max <- mr[2]
-  d <- extract_precursors(p, f)
+  expect_identical(nrow(extract_precursors(p, f)), nrow(all))
+  # ... its own precursor m/z range does (open ends allowed).
+  d <- extract_precursors(p, pmz_range = mr)
   expect_true(nrow(d) > 0 && nrow(d) < nrow(all))
   expect_true(all(d$precursorMZ >= mr[1] & d$precursorMZ <= mr[2]))
+  d <- extract_precursors(p, pmz_range = c(mr[1], NA))
+  expect_true(all(d$precursorMZ >= mr[1]))
+  expect_gte(nrow(d), nrow(extract_precursors(p, pmz_range = mr)))
 
   # Intensity acts on the precursor intensity when the file reports it.
   if (any(is.finite(all$precursorIntensity) & all$precursorIntensity > 0)) {
