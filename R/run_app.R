@@ -6,7 +6,7 @@
 #' @noRd
 app_ui <- function() {
   page_navbar(
-    title = "xcmsVisGUI",
+    title = "MassScope",
     theme = bs_theme(version = 5, preset = "flatly"),
     id = "main_nav",
     sidebar = sidebar(
@@ -102,7 +102,7 @@ app_server <- function(input, output, session) {
   mod_plot_precursors_server("prec", rv, included)
 }
 
-#' Launch xcmsVisGUI.
+#' Launch MassScope.
 #'
 #' Performs the one-time runtime setup (mirai daemon pool, large-upload option;
 #' SerialParam is registered on package load) and starts the Shiny app. The

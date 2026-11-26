@@ -1,4 +1,4 @@
-Package: xcmsVisGUI
+Package: MassScope
 Title: Interactive Raw LC-MS Viewer (Shiny)
 Version: 0.0.0.9000
 Authors@R:
@@ -9,8 +9,8 @@ Description: A local Shiny desktop application for interactively visualising raw
     multiple EICs per file, click-to-spectrum, 2D/3D maps, and
     publication-quality export.
 License: MIT + file LICENSE
-URL: https://stanstrup.github.io/xcmsVisGUI, https://github.com/stanstrup/xcmsVisGUI
-BugReports: https://github.com/stanstrup/xcmsVisGUI/issues
+URL: https://stanstrup.github.io/MassScope, https://github.com/stanstrup/MassScope
+BugReports: https://github.com/stanstrup/MassScope/issues
 Encoding: UTF-8
 Imports:
     shiny,
@@ -57,4 +57,4 @@ biocViews:
 Config/testthat/edition: 3
 Config/Needs/website: pkgdown
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 8.0.0
+Config/roxygen2/version: 8.1.1

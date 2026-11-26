@@ -13,7 +13,15 @@
 #' @importFrom tools R_user_dir
 #' @noRd
 settings_file <- function() {
-  file.path(R_user_dir("xcmsVisGUI", "config"), "settings.json")
+  f <- file.path(R_user_dir("MassScope", "config"), "settings.json")
+  # One-time carry-over from the package's former name (xcmsVisGUI), so the
+  # rename does not reset saved preferences. Remove once nobody has the old dir.
+  old <- file.path(R_user_dir("xcmsVisGUI", "config"), "settings.json")
+  if (!file.exists(f) && file.exists(old)) {
+    dir.create(dirname(f), recursive = TRUE, showWarnings = FALSE)
+    file.copy(old, f)
+  }
+  f
 }
 
 #' Load persisted settings as a named list (known fields only). Returns an empty

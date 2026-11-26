@@ -82,7 +82,7 @@ cache_disk_qs2 <- function(dir, max_size = 2 * 1024^3, max_age = Inf,
 
 #' Layered (memory + disk/qs2) cachem cache backing the app's bindCache() calls
 #' (the app-level cache, wired in via shinyOptions() in setup_runtime()). One
-#' instance per process; disk lives under tools::R_user_dir("xcmsVisGUI","cache")
+#' instance per process; disk lives under tools::R_user_dir("MassScope","cache")
 #' and is evicted past ~2 GB or 30 days.
 #' @importFrom cachem cache_mem cache_layered
 #' @importFrom tools R_user_dir
@@ -93,7 +93,7 @@ app_cache <- local({
     if (is.null(cache))
       cache <<- cache_layered(
         cache_mem(max_size = 512 * 1024^2),
-        cache_disk_qs2(dir = file.path(R_user_dir("xcmsVisGUI", "cache"), "bindcache"),
+        cache_disk_qs2(dir = file.path(R_user_dir("MassScope", "cache"), "bindcache"),
                        max_size = 2 * 1024^3, max_age = 30 * 24 * 3600))
     cache
   }

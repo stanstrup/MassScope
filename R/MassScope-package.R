@@ -1,4 +1,4 @@
-#' xcmsVisGUI: interactive raw LC-MS viewer (Shiny)
+#' MassScope: interactive raw LC-MS viewer (Shiny)
 #'
 #' A local desktop Shiny app for visualising raw LC-MS data (TIC/BPC, EICs,
 #' spectra, 2D/3D MS maps, DDA precursors). Launch with [run_app()].

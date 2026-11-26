@@ -1,4 +1,4 @@
 library(testthat)
-library(xcmsVisGUI)
+library(MassScope)
 
-test_check("xcmsVisGUI")
+test_check("MassScope")

@@ -1,4 +1,4 @@
-url: https://stanstrup.github.io/xcmsVisGUI
+url: https://stanstrup.github.io/MassScope
 
 template:
   bootstrap: 5
@@ -32,4 +32,4 @@ reference:
   - run_app
 - title: package
   contents:
-  - xcmsVisGUI-package
+  - MassScope-package

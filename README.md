@@ -1,4 +1,4 @@
-# xcmsVisGUI
+# MassScope
 
 A local Shiny desktop app for interactively visualising **raw LC-MS data** on the
 RforMassSpectrometry stack (`Spectra` / `MsExperiment` / `xcms`) — TIC/BPC,
@@ -19,13 +19,13 @@ repositories first (via BiocManager) so those resolve:
 ```r
 install.packages(c("remotes", "BiocManager"))
 options(repos = BiocManager::repositories())
-remotes::install_github("stanstrup/xcmsVisGUI")
+remotes::install_github("stanstrup/MassScope")
 ```
 
 ## Run
 
 ```r
-xcmsVisGUI::run_app()
+MassScope::run_app()
 ```
 
 A browser tab opens with the plot views across the top (TIC/BPC, EIC, Spectrum, MS
@@ -35,17 +35,17 @@ to begin.
 
 ## Documentation
 
-Full guides live on the [package website](https://stanstrup.github.io/xcmsVisGUI/):
+Full guides live on the [package website](https://stanstrup.github.io/MassScope/):
 
-- [**Getting started**](https://stanstrup.github.io/xcmsVisGUI/articles/getting_started.html)
+- [**Getting started**](https://stanstrup.github.io/MassScope/articles/getting_started.html)
   — loading files, filtering, settings, export, and moving between tabs
-- [TIC / BPC](https://stanstrup.github.io/xcmsVisGUI/articles/tic_bpc.html)
-- [EIC](https://stanstrup.github.io/xcmsVisGUI/articles/eic.html)
-- [Spectrum](https://stanstrup.github.io/xcmsVisGUI/articles/spectrum.html)
+- [TIC / BPC](https://stanstrup.github.io/MassScope/articles/tic_bpc.html)
+- [EIC](https://stanstrup.github.io/MassScope/articles/eic.html)
+- [Spectrum](https://stanstrup.github.io/MassScope/articles/spectrum.html)
   — single spectra, the scan-list browser, and annotation
-- [MS map](https://stanstrup.github.io/xcmsVisGUI/articles/ms_map.html)
-- [Precursors](https://stanstrup.github.io/xcmsVisGUI/articles/precursors.html)
-- [Developer guide](https://stanstrup.github.io/xcmsVisGUI/articles/developer.html)
+- [MS map](https://stanstrup.github.io/MassScope/articles/ms_map.html)
+- [Precursors](https://stanstrup.github.io/MassScope/articles/precursors.html)
+- [Developer guide](https://stanstrup.github.io/MassScope/articles/developer.html)
   — status, running from a clone, tests, and the project layout
 
 ## Deploy with Docker
@@ -53,8 +53,8 @@ Full guides live on the [package website](https://stanstrup.github.io/xcmsVisGUI
 A `Dockerfile` (based on the Bioconductor image) runs the app as a server:
 
 ```sh
-docker build -t xcmsvisgui .
-docker run --rm -p 3838:3838 -v /path/to/ms-data:/data xcmsvisgui
+docker build -t massscope .
+docker run --rm -p 3838:3838 -v /path/to/ms-data:/data massscope
 ```
 
 Open <http://localhost:3838> and paste `/data` (your mounted files) into the Files

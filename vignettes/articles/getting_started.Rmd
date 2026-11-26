@@ -13,7 +13,7 @@ vignette: >
 knitr::opts_chunk$set(echo = FALSE, eval = FALSE)
 ```
 
-xcmsVisGUI is a local Shiny desktop app for exploring **raw** LC-MS data
+MassScope is a local Shiny desktop app for exploring **raw** LC-MS data
 interactively — TIC/BPC, extracted-ion chromatograms, spectra (with adduct /
 isotope / fragment annotation, including formula-based fine isotope patterns),
 2D/3D maps and DDA precursors. It centroids profile scans on the fly for display,
@@ -34,12 +34,12 @@ and the `faahKO` / `msdata` demo datasets that ship with Bioconductor.
 
 ## Launch
 
-Install it first (see the [README](https://github.com/stanstrup/xcmsVisGUI#install)),
+Install it first (see the [README](https://github.com/stanstrup/MassScope#install)),
 then the app is the exported function `run_app()`:
 
 ```{r, eval = FALSE, echo = TRUE}
 # installed:
-xcmsVisGUI::run_app()
+MassScope::run_app()
 
 # or from a clone (no install needed):
 # Rscript run.R

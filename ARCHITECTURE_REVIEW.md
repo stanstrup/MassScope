@@ -1,4 +1,4 @@
-# Architecture review — xcmsVisGUI
+# Architecture review — MassScope
 
 Date: 2026-06-05 (file refs updated 2026-06-06 for the package conversion).
 Method: two independent reviewers analysed the full codebase (then `app.R`,
@@ -253,7 +253,7 @@ don't get re-litigated.
 
 ### Persistence
 - **Settings persist across restarts** — allow-listed fields written as JSON to
-  the per-user config dir (`tools::R_user_dir("xcmsVisGUI","config")`,
+  the per-user config dir (`tools::R_user_dir("MassScope","config")`,
   `R/fct_settings_store.R`). Chosen over an in-package file so a normal install
   is writable. Added a **default EIC tolerance** setting (value + ppm/Da).
 - **Persistent extraction cache** (`R/fct_cache.R`) — heavy `bindCache` results

@@ -1,4 +1,4 @@
-# CLAUDE.md — working notes for xcmsVisGUI
+# CLAUDE.md — working notes for MassScope
 
 Read this before changing anything. It captures the non-obvious decisions, the
 performance traps, and the conventions this codebase follows. Also read
@@ -23,7 +23,7 @@ Scope is **raw visualisation only** — no peak picking / grouping / alignment
 - **This is now an R package.** `R/` is package code (loaded via the namespace, not
   Shiny-auto-sourced); the app is the exported `run_app()`. Launch headless:
   `Rscript -e "pkgload::load_all('.'); run_app(port=7799, launch.browser=FALSE)"`
-  (or `Rscript run.R`, which load_all's + launches). Installed: `xcmsVisGUI::run_app()`.
+  (or `Rscript run.R`, which load_all's + launches). Installed: `MassScope::run_app()`.
 - Tests (testthat, edition 3): `Rscript -e "testthat::test_local('.')"` (dev, load_all)
   or `R CMD check`. Real-data tests (filter-equivalence + extraction smoke) SKIP when
   msdata/faahKO are absent. `tests/testthat/` holds them.
@@ -70,7 +70,7 @@ Consequences baked into the architecture:
   reads `rv$files` directly and still responds instantly.
 - **Package layout (not an app-dir):** what was `global.R` is split into `R/zzz.R`
   (`.onLoad` → SerialParam), `R/constants.R` (constants + rt helpers), `R/daemons.R`
-  (`set_daemons`/`setup_runtime`). `R/xcmsVisGUI-package.R` holds the roxygen import
+  (`set_daemons`/`setup_runtime`). `R/MassScope-package.R` holds the roxygen import
   declarations; NAMESPACE/`man/` are roxygen-generated — don't hand-edit.
 - Central reactive state: `make_rv()` in `R/utils_reactive.R` (rv$files, rv$eic_targets,
   rv$selection, rv$filter, rv$settings). One `rv` passed to every module.
@@ -169,7 +169,7 @@ Consequences baked into the architecture:
   MsExperiment is a file-backed S4 object, not worth disk-serialising. Clear-all resets
   the disk cache via `clear_ms_caches` → `clear_disk_cache`.
 - **Settings persist** across restarts (`fct_settings_store.R`): an allow-list
-  (`.PERSISTED_SETTINGS`) is written as JSON to `R_user_dir("xcmsVisGUI","config")`
+  (`.PERSISTED_SETTINGS`) is written as JSON to `R_user_dir("MassScope","config")`
   (not the package dir — must work for a normal install). Restored on startup, saved
   debounced.
 - **Cross-plot nav** via `rv$selection` (list: plot, file_id, rt[sec], mz). A plotly
