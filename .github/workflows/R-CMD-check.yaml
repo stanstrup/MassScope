@@ -25,6 +25,12 @@ jobs:
           r-version: release
           use-public-rspm: true
 
+      # Bioconductor packages as prebuilt Linux binaries from Posit Package
+      # Manager (CRAN already is, via use-public-rspm); without this every Bioc
+      # dependency (xcms, mzR, Spectra, ...) compiles from source.
+      - name: Use P3M Bioconductor binaries
+        run: echo "options(BioC_mirror = 'https://p3m.dev/bioconductor/__linux__/$(lsb_release -cs)/latest')" >> ~/.Rprofile
+
       # setup-r-dependencies reads DESCRIPTION (Imports/Suggests/Remotes) and uses
       # pak, which resolves Bioconductor deps (Spectra/xcms/mzR/msdata/faahKO/...),
       # the github::stanstrup/xcmsVis remote, and the needed system libraries.

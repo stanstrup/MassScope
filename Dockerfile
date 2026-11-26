@@ -7,19 +7,32 @@
 # Files box. Settings persist to a per-user config dir inside the container; mount
 # a volume at /root/.config/R if you want them to survive container restarts.
 #
-# Based on the Bioconductor image so the RforMassSpectrometry stack
-# (Spectra/MsExperiment/xcms/mzR) and its system libraries (e.g. netCDF for CDF)
-# are available. Pick a Bioconductor release that carries the package's deps.
-FROM bioconductor/bioconductor_docker:RELEASE_3_21
+# Fast build: rocker/r-ver (Ubuntu + R, CRAN preconfigured to Posit Package
+# Manager's Linux BINARIES) plus P3M's Bioconductor mirror, which also serves
+# Linux binaries (Spectra, xcms, mzR, ...). Almost nothing is compiled; pak adds
+# the system libraries the binaries need (netCDF, libxml2, ...) via apt.
+# Keep the R minor version in step with the Bioconductor release below.
+FROM rocker/r-ver:4.6
+
+ENV R_BIOC_VERSION=3.24
+RUN . /etc/os-release \
+ && echo "options(BioC_mirror = 'https://p3m.dev/bioconductor/__linux__/${VERSION_CODENAME}/latest')" \
+      >> "${R_HOME}/etc/Rprofile.site" \
+ && Rscript -e "install.packages('pak')"
 
 WORKDIR /srv/MassScope
-COPY . /srv/MassScope
 
-# Install the package and its hard dependencies (Imports/Depends/LinkingTo only;
-# Suggests — testthat, msdata, faahKO, svglite — are not needed to run the app).
-# pak resolves Bioconductor packages and installs system requirements via apt.
-RUN Rscript -e "install.packages('pak', repos = 'https://cloud.r-project.org')" \
- && Rscript -e "pak::local_install('.', ask = FALSE, dependencies = NA)" \
+# Dependencies first, in their own layer: editing the package source then reuses
+# this layer instead of reinstalling everything. Hard deps only (Suggests such
+# as testthat/msdata/faahKO are not needed to run the app). The download caches
+# are removed in the same layer (~1 GB otherwise baked into the image).
+COPY DESCRIPTION /srv/MassScope/
+RUN Rscript -e "pak::local_install_deps('.', ask = FALSE, dependencies = NA)" \
+ && Rscript -e "pak::cache_clean(); pak::meta_clean(force = TRUE)" \
+ && rm -rf /tmp/* /root/.cache/R /var/lib/apt/lists/*
+
+COPY . /srv/MassScope
+RUN Rscript -e "pak::local_install('.', ask = FALSE, dependencies = FALSE)" \
  && Rscript -e "library(MassScope)"  # fail the build early if it can't load
 
 # Large uploads via the browser are allowed (run_app sets shiny.maxRequestSize);
