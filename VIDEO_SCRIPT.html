@@ -78,8 +78,8 @@
 <td>Small-molecule Precursors view; second urine file for spectrum <strong>Facet / Stacked</strong> comparison</td>
 </tr><tr><td><strong>DIME SCFA…Blank + IS.mzML</strong></td>
 <td><code>C:/Users/tmh331/Downloads/DIME SCFA240_20220529_SSCFA_061_neg_Reaction Blank + IS.mzML</code></td>
-<td>Truncated mzML (cut off before its closing tags) — unreadable</td>
-<td>Showing that a broken file gets an error badge and the rest still load</td>
+<td>SCFA method reaction blank + internal standards, <strong>negative</strong> mode, centroid MS1, 2873 scans, 10 min (full copy from <code>N:/SCIENCE-SCIENCENEXS-NYMETABOLOMICS/Projects/DIME/DIME SCFA240/DIME SCFA240.pro/mzML</code>)</td>
+<td>Negative polarity: the <strong>Pol</strong> column, the Polarity filter, annotation <strong>Ion mode</strong> switching to negative</td>
 </tr></tbody></table><p>Getting the public paths on another machine: <code>system.file("cdf", "KO", package = "faahKO")</code>, <code>.../"WT"</code>, and <code>list.files(system.file("proteomics", package = "msdata"), "mzML$", full.names = TRUE)</code>.</p>
 <blockquote>
 <p><strong>Iron-formate (metal complex) demo:</strong> neither urine file has a convincing iron-formate series — <em>m/z</em> 131.95 / 132.96 only reach ~10–24 counts (best: <code>18052015-005.mzML</code> scan acq <strong>150</strong>, rt 0.58 min; <code>20130222-020.mzML</code> scan acq <strong>291</strong>, rt 0.68 min). Use a run with real steel-tubing background if you have one; otherwise demo the mechanics on those scans and keep it short.</p>
@@ -96,8 +96,8 @@
 <p><strong>[VO]</strong> - Three ways to get files in — and the difference matters once your files are large. - <strong>Paste a path</strong>, or <strong>Choose folder…</strong>, loads the data <strong>in place — nothing is copied</strong>; a multi-gigabyte file just stays on disk and the app reads it there. - The path box also takes a <strong>single file</strong>, and a folder load grabs every MS file in <em>that</em> folder only — it <strong>doesn’t descend into sub-folders</strong>, so KO and WT go in as two folders. - <strong>Browse files…</strong> — or <strong>dragging files onto it</strong> — is the ordinary OS file dialog, and it <strong>copies</strong> everything into a temp folder first. - So: handy for a file or two, but for big or many files, paste the path and skip the copy.</p>
 <p><strong>[SCREEN]</strong> - Let the files read in the background — status badges flip to ✅. - Point at the <strong>MS</strong>, <strong>Pol</strong>, and <strong>Mode</strong> (<code>prof</code>/<code>cent</code>/<code>mix</code>) columns. - Double-click a <strong>Group</strong> cell and rename the WT files’ group to <code>WT</code> (KO → <code>KO</code>). - Click <strong>All</strong> to include everything; show <strong>None</strong> and <strong>Invert</strong> too, then <strong>All</strong> again.</p>
 <p><strong>[VO]</strong> - Reading happens in the background — several files at once — so the interface never blocks. - Each row tells me the MS levels, the polarity, and whether the file is <strong>profile or centroided</strong>, which decides how the views behave. - I set my sample groups right here in the table, and select rows to include files in the plots — All, None, Invert for quick changes. - Two files can even share a name from different folders — they’re kept apart by their parent folder.</p>
-<p><strong>[SCREEN]</strong> <em>(Optional, 10 s)</em> - Paste the truncated <strong>DIME SCFA</strong> file path → <strong>Add</strong>. It gets an error badge and a “Skipped unreadable file” note while the others stay usable.</p>
-<p><strong>[VO]</strong> - And a broken file doesn’t take the session down — it’s flagged, skipped, and everything else keeps working.</p>
+<p><strong>[SCREEN]</strong> <em>(Optional, 10 s)</em> - Paste the <strong>DIME SCFA</strong> file path → <strong>Add</strong> next to a urine file. Its <strong>Pol</strong> column reads <em>neg</em>, the urine file’s <em>pos</em>.</p>
+<p><strong>[VO]</strong> - Positive and negative runs sit side by side — the table tells me which is which before I open anything.</p>
 <hr></div>
 <div class="section level2">
 <h2 id="id_2-chromatogram--click-a-peak--spectrum-145315">2. Chromatogram → click a peak → spectrum (1:45–3:15)<a class="anchor" aria-label="anchor" href="#id_2-chromatogram--click-a-peak--spectrum-145315"></a></h2>
@@ -123,6 +123,8 @@
 <p><strong>[VO]</strong> - Now that I know which peaks belong together, I annotate them. - I anchor on the molecular-ion candidate; the app projects the common adducts and in-source fragments and labels the ones actually present. - The ion mode follows the scan, and matching runs against <strong>real centroids</strong> at a signal-to-noise I control — with a readout of how many peaks feed it, so nothing is hidden. - I can also show what <em>should</em> be there but isn’t — an absent sodium adduct is evidence too.</p>
 <p><strong>[SCREEN]</strong> - Switch <strong>Mode</strong> → <strong>Auto-suggest (findMAIN)</strong> → <strong>Suggest molecular ion</strong> → click a ranked row. - Then switch to <strong>Difference network</strong> → show the peak-pair Δ labels.</p>
 <p><strong>[VO]</strong> - If I’m unsure which peak is the molecule, <strong>findMAIN</strong> ranks the hypotheses for me. - Or I drop the anchor entirely and annotate the <strong>differences</strong> between peaks — to catch a neutral loss or an adduct relationship I hadn’t assumed.</p>
+<p><strong>[SCREEN]</strong> <em>(Optional)</em> - Include the negative-mode <strong>DIME SCFA</strong> file instead and open a scan — <strong>Ion mode</strong> flips to <em>Negative</em> and the labels become [M−H]⁻, [M+Cl]⁻, [M−H+HCOOH]⁻ ….</p>
+<p><strong>[VO]</strong> - Ion mode follows the data, so a negative-mode run gets negative-mode adducts without me touching a thing.</p>
 <hr></div>
 <div class="section level2">
 <h2 id="id_5-from-a-mass-to-a-formula--fine-isotopes-and-contaminants-615715">5. From a mass to a formula — fine isotopes and contaminants (6:15–7:15)<a class="anchor" aria-label="anchor" href="#id_5-from-a-mass-to-a-formula--fine-isotopes-and-contaminants-615715"></a></h2>
@@ -155,7 +157,7 @@
 <hr><div class="section level3">
 <h3 id="feature-checklist-make-sure-the-recording-hits-all-of-these">Feature checklist (make sure the recording hits all of these)<a class="anchor" aria-label="anchor" href="#feature-checklist-make-sure-the-recording-hits-all-of-these"></a></h3>
 <ul class="task-list"><li><label><input type="checkbox">Loading: paste-path / Choose folder (no copy) vs Browse / drag-and-drop (copies to temp); single file or non-recursive folder</label></li>
-<li><label><input type="checkbox">Async parallel reading, status badges, Mode column (prof/cent/mix), group editing, All/None/Invert, clear-all, same-name disambiguation, unreadable file flagged + skipped</label></li>
+<li><label><input type="checkbox">Async parallel reading, status badges, Mode column (prof/cent/mix), Pol column (pos vs neg file), group editing, All/None/Invert, clear-all, same-name disambiguation</label></li>
 <li><label><input type="checkbox">TIC vs BPC, colour by sample/group, show data points, hover (scan, rt, int, precursor m/z of MSn), click-to-spectrum</label></li>
 <li><label><input type="checkbox">Spectrum by rt or scan number; Single / Facet by file / Stacked layouts</label></li>
 <li><label><input type="checkbox">Profile spectrum as a line; show data points</label></li>
@@ -164,7 +166,7 @@
 <li><label><input type="checkbox"><strong>Co-elution loop</strong>: click peaks → EIC list; normalise-each-trace to compare shapes; same-vs-different call</label></li>
 <li><label><input type="checkbox">EIC targets table (label, tol, rt window editable; add/remove rows); paste list with tolerance</label></li>
 <li><label><input type="checkbox">EIC cross-sample: colour by group; scale raw / per trace / per target / log10; facet by file; data points</label></li>
-<li><label><input type="checkbox">Annotation: manual anchor, findMAIN auto, difference network; ion mode from scan; Match S/N + candidate readout; top N, isotope/charge limits, in-source fragments, expected-but-absent</label></li>
+<li><label><input type="checkbox">Annotation: manual anchor, findMAIN auto, difference network; ion mode from scan (negative on the DIME file); Match S/N + candidate readout; top N, isotope/charge limits, in-source fragments, expected-but-absent</label></li>
 <li><label><input type="checkbox">Isotope pattern: candidate formulas, translucent envelope, resolving power, From data</label></li>
 <li><label><input type="checkbox">Metal complexes: Elements + [M]+ + valid-only off (131.9504 / 132.9582)</label></li>
 <li><label><input type="checkbox">MS map: Plot button, 2D contrast, rt/m/z bins, intensity cutoff, point size, 3D surface / points, click-to-spectrum</label></li>
