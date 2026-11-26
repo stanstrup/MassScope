@@ -29,7 +29,7 @@ R packages (installed in the R 4.6 library); the small-molecule runs are in
 | **MS3TMT11.mzML** | `C:/Users/tmh331/AppData/Local/R/win-library/4.6/msdata/proteomics/MS3TMT11.mzML` | Profile MS1 + centroid MS2/MS3, DDA (peptides) | Profile line, peak picking, isotope envelope (scan **22413**, anchor **582.3448**), Precursors map, precursor m/z in hovers |
 | **18052015-005.mzML** | `C:/Users/tmh331/Downloads/18052015-005.mzML` | Urine, positive QTOF, centroid MS1 only, 7 min | Adduct / fragment / findMAIN annotation — scan **1408** (rt 5.434 min), base peak [M+H]⁺ |
 | **20130222-020.mzML** | `C:/Users/tmh331/Downloads/20130222-020.mzML` | Urine, positive, centroid MS1 + 31 MS2 (all precursor *m/z* 525), 6 min | Small-molecule Precursors view; second urine file for spectrum **Facet / Stacked** comparison |
-| **DIME SCFA…Blank + IS.mzML** | `C:/Users/tmh331/Downloads/DIME SCFA240_20220529_SSCFA_061_neg_Reaction Blank + IS.mzML` | Truncated mzML (cut off before its closing tags) — unreadable | Showing that a broken file gets an error badge and the rest still load |
+| **DIME SCFA…Blank + IS.mzML** | `C:/Users/tmh331/Downloads/DIME SCFA240_20220529_SSCFA_061_neg_Reaction Blank + IS.mzML` | SCFA method reaction blank + internal standards, **negative** mode, centroid MS1, 2873 scans, 10 min (full copy from `N:/SCIENCE-SCIENCENEXS-NYMETABOLOMICS/Projects/DIME/DIME SCFA240/DIME SCFA240.pro/mzML`) | Negative polarity: the **Pol** column, the Polarity filter, annotation **Ion mode** switching to negative |
 
 Getting the public paths on another machine:
 `system.file("cdf", "KO", package = "faahKO")`, `.../"WT"`, and
@@ -82,10 +82,10 @@ Getting the public paths on another machine:
 - Two files can even share a name from different folders — they're kept apart by their parent folder.
 
 **[SCREEN]** *(Optional, 10 s)*
-- Paste the truncated **DIME SCFA** file path → **Add**. It gets an error badge and a "Skipped unreadable file" note while the others stay usable.
+- Paste the **DIME SCFA** file path → **Add** next to a urine file. Its **Pol** column reads *neg*, the urine file's *pos*.
 
 **[VO]**
-- And a broken file doesn't take the session down — it's flagged, skipped, and everything else keeps working.
+- Positive and negative runs sit side by side — the table tells me which is which before I open anything.
 
 ---
 
@@ -187,6 +187,12 @@ Getting the public paths on another machine:
 - If I'm unsure which peak is the molecule, **findMAIN** ranks the hypotheses for me.
 - Or I drop the anchor entirely and annotate the **differences** between peaks — to catch a neutral loss or an adduct relationship I hadn't assumed.
 
+**[SCREEN]** *(Optional)*
+- Include the negative-mode **DIME SCFA** file instead and open a scan — **Ion mode** flips to *Negative* and the labels become [M−H]⁻, [M+Cl]⁻, [M−H+HCOOH]⁻ ….
+
+**[VO]**
+- Ion mode follows the data, so a negative-mode run gets negative-mode adducts without me touching a thing.
+
 ---
 
 ## 5. From a mass to a formula — fine isotopes and contaminants (6:15–7:15)
@@ -284,7 +290,7 @@ Getting the public paths on another machine:
 ### Feature checklist (make sure the recording hits all of these)
 
 - [ ] Loading: paste-path / Choose folder (no copy) vs Browse / drag-and-drop (copies to temp); single file or non-recursive folder
-- [ ] Async parallel reading, status badges, Mode column (prof/cent/mix), group editing, All/None/Invert, clear-all, same-name disambiguation, unreadable file flagged + skipped
+- [ ] Async parallel reading, status badges, Mode column (prof/cent/mix), Pol column (pos vs neg file), group editing, All/None/Invert, clear-all, same-name disambiguation
 - [ ] TIC vs BPC, colour by sample/group, show data points, hover (scan, rt, int, precursor m/z of MSn), click-to-spectrum
 - [ ] Spectrum by rt or scan number; Single / Facet by file / Stacked layouts
 - [ ] Profile spectrum as a line; show data points
@@ -293,7 +299,7 @@ Getting the public paths on another machine:
 - [ ] **Co-elution loop**: click peaks → EIC list; normalise-each-trace to compare shapes; same-vs-different call
 - [ ] EIC targets table (label, tol, rt window editable; add/remove rows); paste list with tolerance
 - [ ] EIC cross-sample: colour by group; scale raw / per trace / per target / log10; facet by file; data points
-- [ ] Annotation: manual anchor, findMAIN auto, difference network; ion mode from scan; Match S/N + candidate readout; top N, isotope/charge limits, in-source fragments, expected-but-absent
+- [ ] Annotation: manual anchor, findMAIN auto, difference network; ion mode from scan (negative on the DIME file); Match S/N + candidate readout; top N, isotope/charge limits, in-source fragments, expected-but-absent
 - [ ] Isotope pattern: candidate formulas, translucent envelope, resolving power, From data
 - [ ] Metal complexes: Elements + [M]+ + valid-only off (131.9504 / 132.9582)
 - [ ] MS map: Plot button, 2D contrast, rt/m/z bins, intensity cutoff, point size, 3D surface / points, click-to-spectrum
