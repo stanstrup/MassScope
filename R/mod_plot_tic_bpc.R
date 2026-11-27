@@ -38,53 +38,28 @@ mod_plot_tic_bpc_server <- function(id, rv, dataset, meta, data_key) {
     # (path set + filter + aggregation) so group/color changes never re-extract.
     chrom_df <- reactive({
       x <- dataset(); req(x)
-      # An over-restrictive filter (e.g. a spectrum-ID rule matching nothing) can
-      # leave zero spectra; xcms::chromatogram() would then error "No spectra
-      # available" \u2014 show a clear message instead.
-      validate(need(length(MsExperiment::spectra(x)) > 0,
-                    "No spectra match the current filters."))
-      ms <- chrom_ms_level(rv$filter)
-      withProgress(message = "Extracting chromatograms\u2026", value = 0.5, {
-        chr <- xcms::chromatogram(x, aggregationFun = input$agg, msLevel = ms)
-        add_scan_numbers(chrom_to_df(chr, meta(), labels = chrom_label()), meta())
-      })
+      extract_chrom(x, meta(), rv$filter, labels = chrom_label(),
+                    message = "Extracting chromatograms\u2026",
+                    aggregationFun = input$agg)
     }) %>% bindCache(data_key(), input$agg)
 
     # The ggplot (source of truth for export).
     plot_gg <- reactive({
       df <- chrom_df(); req(nrow(df) > 0)
-      # Refresh group labels from current metadata (cheap) so renaming a group
-      # recolors without re-extracting.
-      m <- meta()
-      idx <- match(df$sample_id, m$id)
-      df$sample_group <- m$sample_group[idx]
-      df$sample_name <- m$disp_name[idx]   # unique display label (disambiguated)
-      cby <- input$color_by
-      lvls <- unique(df[[cby]])
-      pal <- brewer_named(lvls, rv$settings$qual_palette)
-      df$.color <- df[[cby]]
       unit <- rv$settings$time_unit
-      df$rt_disp <- rt_to_disp(df$rt, unit)
-      df <- add_precursor_mz(df, m)
-      df$.tip <- sprintf("%s\nscan: %s\nrt: %.4g %s\nint: %.3g%s",
-                         df$sample_name, ifelse(is.na(df$scan), "?", df$scan),
-                         df$rt_disp, unit, df$intensity, precursor_tip(df$precursorMZ))
+      df <- decorate_chrom(df, meta(), input$color_by, unit)
+      df$.tip <- chrom_tip(df, unit)
+      pal <- brewer_named(unique(df$.color), rv$settings$qual_palette)
       p <- ggplot(df, aes(
         x = rt_disp, y = intensity, group = sample_id, color = .color,
         key = sample_id, text = .tip)) +
         geom_line(linewidth = 0.5)
       if (isTRUE(input$points)) p <- p + geom_point(size = 0.9)
       p +
-        scale_color_manual(values = pal) +
-        labs(x = rt_axis_label(unit), y = "intensity",
-                      color = NULL,
-                      title = paste0(chrom_label(), " \u2014 ", length(unique(df$sample_id)),
-                                     " file(s)")) +
-        theme_bw() +
-        # File names below the plot, not beside it: a right-hand legend of long
-        # file names eats the plot width. ggplotly maps this to a horizontal
-        # legend under the x axis.
-        theme(legend.position = "bottom")
+        labs(x = rt_axis_label(unit), y = "intensity", color = NULL,
+             title = paste0(chrom_label(), " \u2014 ", length(unique(df$sample_id)),
+                            " file(s)")) +
+        chrom_style(pal)
     })
 
     zoom <- zoom_keeper("tic")

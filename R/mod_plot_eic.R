@@ -180,9 +180,6 @@ mod_plot_eic_server <- function(id, rv, dataset, meta, data_key) {
       x <- dataset(); req(x)
       tg <- enabled_targets()
       validate(need(nrow(tg) > 0, "Add at least one enabled target with a valid m/z and tolerance."))
-      # See TIC: a filter matching no spectra would make chromatogram() error.
-      validate(need(length(MsExperiment::spectra(x)) > 0,
-                    "No spectra match the current filters."))
       unit <- rv$settings$time_unit
       tol_da <- ifelse(tg$unit == "ppm", tg$mz * tg$tol / 1e6, tg$tol)
       mzmat <- cbind(tg$mz - tol_da, tg$mz + tol_da)
@@ -193,28 +190,17 @@ mod_plot_eic_server <- function(id, rv, dataset, meta, data_key) {
       rmin_s <- rt_to_sec(tg$rt_min, unit); rmax_s <- rt_to_sec(tg$rt_max, unit)
       rtmat <- cbind(ifelse(is.finite(rmin_s), rmin_s, -Inf),
                      ifelse(is.finite(rmax_s), rmax_s, Inf))
-      ms <- chrom_ms_level(rv$filter)
-      withProgress(message = "Extracting EICs\u2026", value = 0.5, {
-        chr <- xcms::chromatogram(x, mz = mzmat, rt = rtmat, msLevel = ms)
-        add_scan_numbers(chrom_to_df(chr, meta(), labels = tg$label), meta())
-      })
+      extract_chrom(x, meta(), rv$filter, labels = tg$label,
+                    message = "Extracting EICs\u2026", mz = mzmat, rt = rtmat)
     }) %>% bindCache(data_key(), enabled_targets(), rv$settings$time_unit)
 
     plot_gg <- reactive({
       df <- eic_df(); req(nrow(df) > 0)
-      m <- meta()
-      idx <- match(df$sample_id, m$id)
-      df$sample_group <- m$sample_group[idx]
-      df$sample_name <- m$disp_name[idx]   # unique display label (disambiguated)
       cby <- input$color_by
       unit <- rv$settings$time_unit
-      df$rt_disp <- rt_to_disp(df$rt, unit)
-      df$.color <- df[[cby]]
+      df <- decorate_chrom(df, meta(), cby, unit)
+      df$.tip <- chrom_tip(df, unit, lead = paste(df$target, "|", df$sample_name))
       pal <- brewer_named(unique(df$.color), rv$settings$qual_palette)
-      df <- add_precursor_mz(df, m)
-      df$.tip <- sprintf("%s | %s\nscan: %s\nrt: %.4g %s\nint: %.3g%s",
-                         df$target, df$sample_name, ifelse(is.na(df$scan), "?", df$scan),
-                         df$rt_disp, unit, df$intensity, precursor_tip(df$precursorMZ))
       # Intensity scaling. `y` is what's plotted; the tooltip keeps the raw
       # intensity either way. Normalise within a group by dividing by its max
       # (guarding an all-zero trace); log uses log10(x+1) so the many baseline
@@ -239,14 +225,8 @@ mod_plot_eic_server <- function(id, rv, dataset, meta, data_key) {
         p <- p + geom_line(linewidth = 0.5)
       if (isTRUE(input$points)) p <- p + geom_point(size = 0.9)
       p <- p +
-        scale_color_manual(values = pal) +
-        labs(x = rt_axis_label(unit), y = ylab, color = NULL,
-                      linetype = NULL) +
-        theme_bw() +
-        # File names below the plot, not beside it: a right-hand legend of long
-        # file names eats the plot width. ggplotly maps this to a horizontal
-        # legend under the x axis.
-        theme(legend.position = "bottom")
+        labs(x = rt_axis_label(unit), y = ylab, color = NULL, linetype = NULL) +
+        chrom_style(pal)
       if (isTRUE(input$facet) && length(unique(df$sample_id)) > 1)
         p <- p + facet_wrap(~ sample_name, ncol = 1, scales = "free_y")
       p

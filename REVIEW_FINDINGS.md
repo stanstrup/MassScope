@@ -75,7 +75,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 - [x] **C1** One spectrum-selection helper for the three duplicated blocks
   (`spec_df`, `overlay_df`, `ann_candidates`), which have already drifted
   (`f$name` vs `cur_disp()`). With E1/E2. Votes 4/0/0.
-- [ ] **C2** TIC and EIC share ~20 lines (extraction, decoration, theme). After
+- [x] **C2** TIC and EIC share ~20 lines (extraction, decoration, theme). After
   B1–B3. Votes 4/0/0.
 - [x] **C3** `.flt_rt/.flt_pol/.flt_mz` returning NULL when unset, shared by
   `apply_filters` and `apply_filters_spectra`. Only with the equivalence tests

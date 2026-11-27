@@ -300,3 +300,54 @@ zoom_keeper <- function(source) {
 isTRUE_vec <- function(x) {
   out <- as.logical(x); out[is.na(out)] <- FALSE; out
 }
+
+# --- chromatogram views (TIC/BPC, EIC) ----------------------------------------
+# The extraction and plot-decoration steps the chromatogram views share, so a fix
+# in one (tooltips, metadata join, legend) can't drift from the other.
+
+#' Chromatograms of `x` as the tidy table the chromatogram views plot. A filter
+#' that left no spectra (a spectrum-ID rule matching nothing) would make
+#' xcms::chromatogram() error "No spectra available", so that gets a clear
+#' message. Extracts at the filter's MS level and attaches scan numbers; `...`
+#' goes to xcms::chromatogram (aggregationFun, mz, rt).
+#' @noRd
+extract_chrom <- function(x, meta, filter, labels, message, ...) {
+  validate(need(length(MsExperiment::spectra(x)) > 0,
+                "No spectra match the current filters."))
+  withProgress(message = message, value = 0.5, {
+    chr <- xcms::chromatogram(x, msLevel = chrom_ms_level(filter), ...)
+    add_scan_numbers(chrom_to_df(chr, meta, labels = labels), meta)
+  })
+}
+
+#' Join the CURRENT file metadata onto chromatogram rows (group, unique display
+#' name), plus the display rt, the colour key and the precursor m/z. Done at plot
+#' time, not extraction, so renaming a group recolours without re-extracting.
+#' @noRd
+decorate_chrom <- function(df, meta, color_by, unit) {
+  idx <- match(df$sample_id, meta$id)
+  df$sample_group <- meta$sample_group[idx]
+  df$sample_name <- meta$disp_name[idx]   # unique display label (disambiguated)
+  df$rt_disp <- rt_to_disp(df$rt, unit)
+  df$.color <- df[[color_by]]
+  add_precursor_mz(df, meta)
+}
+
+#' Tooltip for a chromatogram point; `lead` is its first line (the file, or
+#' "target | file" on the EIC).
+#' @noRd
+chrom_tip <- function(df, unit, lead = df$sample_name) {
+  sprintf("%s\nscan: %s\nrt: %.4g %s\nint: %.3g%s",
+          lead, ifelse(is.na(df$scan), "?", df$scan),
+          df$rt_disp, unit, df$intensity, precursor_tip(df$precursorMZ))
+}
+
+#' The chromatogram views' colour scale and theme. File names go below the plot,
+#' not beside it: a right-hand legend of long file names eats the plot width
+#' (ggplotly maps it to a horizontal legend under the x axis).
+#' @importFrom ggplot2 scale_color_manual theme_bw theme
+#' @noRd
+chrom_style <- function(pal) {
+  list(scale_color_manual(values = pal), theme_bw(),
+       theme(legend.position = "bottom"))
+}
