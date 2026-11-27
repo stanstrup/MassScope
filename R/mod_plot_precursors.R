@@ -53,10 +53,22 @@ mod_plot_precursors_server <- function(id, rv, included) {
       c(num(input$pmz_min), num(input$pmz_max))
     }), 500)
 
-    # Extract only what the files decide (id + precursors), cached on the MS2 file
-    # set, filter and precursor range. Names and groups are joined at plot time, as
-    # on the TIC/EIC: renaming a group or (un)ticking a file without MS2 used to
-    # re-read every MS2 file.
+    # Each file's precursors, memoised on (path, filter, precursor range), so
+    # renaming a group or (un)ticking a file without MS2 no longer re-reads every
+    # MS2 file; names and groups are joined at plot time, as on the TIC/EIC.
+    # Per file and only on success: a failed read is skipped and reported by
+    # extract_over_files, and caching that partial table (as a bindCache on the
+    # whole set did) would hide the file silently until Clear all.
+    prec_memo <- new.env(parent = emptyenv())
+    read_prec <- function(p, flt, pr) {
+      key <- rlang::hash(list(p, flt, pr))
+      hit <- prec_memo[[key]]
+      if (!is.null(hit)) return(hit)
+      d <- extract_precursors(p, flt, pr)      # an error propagates: not stored
+      if (length(prec_memo) > 200) rm(list = ls(prec_memo), envir = prec_memo)
+      assign(key, d, envir = prec_memo)
+      d
+    }
     prec_df <- reactive({
       f2 <- ms2_files()
       validate(need(nrow(f2) > 0,
@@ -64,12 +76,9 @@ mod_plot_precursors_server <- function(id, rv, included) {
       withProgress(message = "Reading precursors\u2026", value = 0.5, {
         flt <- rv$filter
         pr <- pmz_range()
-        extract_over_files(f2, function(p) extract_precursors(p, flt, pr),
+        extract_over_files(f2, function(p) read_prec(p, flt, pr),
                            cols = "sample_id", on_error = notify_read_failures)
       })
-    }) %>% bindCache({
-      f2 <- ms2_files(); o <- order(f2$path)
-      list(paths = f2$path[o], ids = f2$id[o], filter = rv$filter, pmz = pmz_range())
     })
 
     plot_gg <- reactive({
