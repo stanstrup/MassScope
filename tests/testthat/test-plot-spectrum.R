@@ -108,3 +108,44 @@ test_that("the spectrum table is the filtered spectrum, as CSV and as TSV", {
     expect_match(spec_stem(), "^spectrum_.*_scan[0-9]+$")
   }))
 })
+
+test_that("a precursor-map click loads its MS2 scan despite an MS1 global filter", {
+  # Clicking a precursor point used to send only file + rt, so the Spectrum tab
+  # showed the nearest scan at the global MS level (MS1). The click now carries
+  # the MS2 scan, and an explicit scan bypasses the MS-level filter.
+  p <- profile_file()
+  pr <- extract_precursors(p)
+  skip_if_not(nrow(pr) > 0, "no MS2 in test file")
+  target <- pr[ceiling(nrow(pr) / 2), ]
+  files <- tibble::tibble(
+    id = "f1", path = p, name = basename(p), sample_group = "g1",
+    include = TRUE, status = "ready", n_spectra = 1L,
+    rt_min = 0, rt_max = 1e5, mz_min = 0, mz_max = 1e4,
+    ms_levels = "1, 2, 3", polarities = "1", charges = NA_character_,
+    spec_mode = "mixed", message = NA_character_)
+  rv <- make_rv(); rv$files <- files
+  rv$filter <- modifyList(empty_filter(), list(ms_level = 1L))
+  included <- reactive(files)
+
+  suppressWarnings(shiny::testServer(mod_plot_spectrum_server,
+                    args = list(rv = rv, included = included), {
+    session$setInputs(layout = "facet", rt = NA, scan = NA, annotate = FALSE,
+                      cmode = "off", csnr = 0, chws = 2, ck = 0, showpts = FALSE)
+    rv$selection <- list(plot = "prec", file_id = "f1", rt = target$rt,
+                         mz = target$precursorMZ, scan = target$scan)
+    session$flushReact()
+    # testServer doesn't round-trip update*Input(); apply what the client would
+    session$setInputs(layout = "single", scan = target$scan,
+                      rt = rt_to_disp(target$rt, rv$settings$time_unit))
+    d <- spec_df()
+    expect_equal(unique(d$scan), target$scan)
+    st <- file_scan_table(p)
+    expect_gt(st$msLevel[match(target$scan, st$scan)], 1L)
+
+    # A chromatogram click (no scan) still picks by rt at the global MS level.
+    rv$selection <- list(plot = "tic", file_id = "f1", rt = target$rt, mz = NA)
+    session$flushReact()
+    session$setInputs(scan = NA)
+    expect_equal(st$msLevel[match(unique(spec_df()$scan), st$scan)], 1L)
+  }))
+})

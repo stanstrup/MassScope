@@ -209,17 +209,21 @@ read_centroid_spec <- function(input) {
 
 #' Wire a plotly click on `source` to `rv$selection` (drives the linked Spectrum
 #' view). `file_id` comes from the click `key` aesthetic; `mz_from(ev)` yields the
-#' m/z (default NA). Call ONCE inside a moduleServer. (The "source not registered"
-#' warning is silenced up front by `prime_plotly_events`.)
+#' m/z (default NA). `scan_from(ev)` yields the clicked point's acquisition number
+#' (default NA = let the Spectrum tab pick the nearest scan at the global MS level);
+#' a scan makes the Spectrum tab load exactly that scan, whatever its MS level.
+#' Call ONCE inside a moduleServer. (The "source not registered" warning is
+#' silenced up front by `prime_plotly_events`.)
 #' @importFrom plotly event_data
 #' @noRd
-wire_selection <- function(source, plot, rv, mz_from = function(ev) NA_real_) {
+wire_selection <- function(source, plot, rv, mz_from = function(ev) NA_real_,
+                           scan_from = function(ev) NA_integer_) {
   click <- reactive(event_data("plotly_click", source = source))
   observeEvent(click(), {
     ev <- click(); req(ev)
     rv$selection <- list(plot = plot, file_id = ev$key,
                          rt = rt_to_sec(ev$x, rv$settings$time_unit),
-                         mz = mz_from(ev))
+                         mz = mz_from(ev), scan = scan_from(ev))
   })
 }
 

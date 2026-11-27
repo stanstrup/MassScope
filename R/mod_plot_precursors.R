@@ -1,6 +1,6 @@
 # mod_plot_precursors — precursor-ion map (DDA) for the included MS2 files.
 # Each point is a precursor selected for fragmentation. Click a point to show its
-# spectrum on the Spectrum tab.
+# MS2 spectrum (that exact scan) on the Spectrum tab.
 
 #' @importFrom plotly plotlyOutput
 #' @noRd
@@ -95,7 +95,20 @@ mod_plot_precursors_server <- function(id, rv, included) {
 
     zoom <- zoom_keeper("prec")
     output$plot <- renderPlotly(finalize_plotly(plot_gg(), "prec", zoom$apply))
-    wire_selection("prec", "prec", rv, mz_from = function(ev) ev$y)
+    # Hand the clicked point's MS2 scan to the Spectrum tab, so it shows that
+    # fragment spectrum rather than the nearest scan at the global MS level (MS1).
+    # The click gives file (key), displayed rt (x) and precursor m/z (y); match
+    # the nearest precursor of that file.
+    clicked_scan <- function(ev) {
+      df <- isolate(prec_df())
+      df <- df[df$sample_id == ev$key, , drop = FALSE]
+      if (!nrow(df)) return(NA_integer_)
+      rt_sec <- rt_to_sec(ev$x, isolate(rv$settings$time_unit))
+      i <- which.min(abs(df$rt - rt_sec) + abs(df$precursorMZ - ev$y))
+      as.integer(df$scan[i])
+    }
+    wire_selection("prec", "prec", rv, mz_from = function(ev) ev$y,
+                   scan_from = clicked_scan)
 
     mod_export_server("export", plot_gg, rv, "precursors", zoom = zoom$ranges)
   })

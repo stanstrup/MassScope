@@ -40,10 +40,12 @@ The global **Filters** apply here too, read as filters on the *precursors*:
 
 ## Moving between tabs
 
-**Click a precursor point** to send its file, retention time and precursor *m/z* to
-the [Spectrum](spectrum.html) tab; switch there to view the corresponding MS2
-spectrum — and from that spectrum you can click fragment peaks straight into the
-[EIC](eic.html) list.
+**Click a precursor point** to send its file, retention time, precursor *m/z* and
+scan number to the [Spectrum](spectrum.html) tab. Switch there and that exact
+fragmentation scan is loaded, at its own MS level (MS2, or MS3 on MS3 data), even
+when the global MS level filter is set to MS1. A click on a chromatogram, by
+contrast, picks the nearest scan at the global MS level. From the fragment spectrum
+you can click peaks straight into the [EIC](eic.html) list.
 
 ## Export
 

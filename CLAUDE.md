@@ -172,8 +172,11 @@ Consequences baked into the architecture:
   (`.PERSISTED_SETTINGS`) is written as JSON to `R_user_dir("MassScope","config")`
   (not the package dir — must work for a normal install). Restored on startup, saved
   debounced.
-- **Cross-plot nav** via `rv$selection` (list: plot, file_id, rt[sec], mz). A plotly
-  `key = sample_id` aesthetic carries the file id into click events.
+- **Cross-plot nav** via `rv$selection` (list: plot, file_id, rt[sec], mz, scan). A plotly
+  `key = sample_id` aesthetic carries the file id into click events. `scan` is set
+  only by the precursor map (looked up from the clicked point): the Spectrum tab then
+  loads that exact scan, bypassing the global MS-level filter; without it the
+  nearest scan at the global level is used.
 - **Heavy single-file views are gated** (MS map "Plot" button) so they don't auto-render
   on every change.
 - Match surrounding **code style**: 2-space indent, `<-` assignment, roxygen-ish `#'`

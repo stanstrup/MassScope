@@ -187,14 +187,20 @@ mod_plot_spectrum_server <- function(id, rv, included) {
       if (length(v) == 1 && !is.na(v)) v else strip_ext(cur_row()$name)
     })
 
-    # A click sets the single-view file + rt (clears scan).
+    # A click sets the single-view file + rt. Clicks that carry a scan (precursor
+    # map) load that exact scan, so its own MS level shows (an explicit scan
+    # bypasses the global MS-level filter); otherwise the scan is cleared and the
+    # nearest spectrum at the global MS level is used.
     observeEvent(rv$selection, {
       s <- rv$selection; req(s, s$file_id)
       if (s$file_id %in% rv$files$id) cur_file(s$file_id)
       if (!is.null(s$rt) && is.finite(s$rt)) {
         updateNumericInput(session, "rt",
                            value = round(rt_to_disp(s$rt, rv$settings$time_unit), 4))
-        updateNumericInput(session, "scan", value = NA)
+        has_scan <- isTRUE(is.finite(s$scan))
+        updateNumericInput(session, "scan", value = if (has_scan) s$scan else NA)
+        if (has_scan && !identical(input$layout, "single"))
+          updateRadioButtons(session, "layout", selected = "single")
       }
     })
 
