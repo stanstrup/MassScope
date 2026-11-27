@@ -29,3 +29,23 @@ test_that("cache_disk_qs2 works as a cache_layered disk layer", {
   expect_equal(lay$get("x"), 1:10)
   expect_true(cachem::is.key_missing(lay$get("nope")))
 })
+
+test_that("a failed cache write leaves no temp file and does not error", {
+  d <- withr::local_tempdir()
+  ca <- cache_disk_qs2(d)
+  local_mocked_bindings(qs_save = function(value, file, ...) {
+    writeLines("partial", file); stop("disk full")
+  })
+  expect_warning(res <- ca$set("k1", 1:3), "disk full")
+  expect_false(res)
+  expect_length(list.files(d), 0)
+})
+
+test_that("reset also removes temp files left by a crashed write", {
+  d <- withr::local_tempdir()
+  ca <- cache_disk_qs2(d)
+  ca$set("k1", 1:3)
+  writeLines("x", file.path(d, "k2.qs2.1234.tmp"))
+  ca$reset()
+  expect_length(list.files(d), 0)
+})

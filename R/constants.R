@@ -1,7 +1,6 @@
 # Package constants and retention-time unit helpers (formerly in global.R).
 
 # Recognised MS file types.
-MS_FILE_EXTS  <- c("mzML", "mzXML", "CDF", "cdf", "mzml", "mzxml")
 MS_FILE_REGEX <- "\\.(mzML|mzXML|CDF)$"
 
 # Drop the MS file extension for display *in plots* (legends/facets/tooltips) —

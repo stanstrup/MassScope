@@ -87,7 +87,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 
 ## Housekeeping
 
-- [ ] **H1** Delete unused `MS_FILE_EXTS`; remove the cache tmp file when
+- [x] **H1** Delete unused `MS_FILE_EXTS`; remove the cache tmp file when
   `qs_save` fails (`R/fct_cache.R:57`). Votes 4/0/0.
 - [ ] **H2** Drop purrr (one `possibly()`); drop the unused
   `importFrom(tibble, as_tibble)`. Votes 4/0/0 (low value).

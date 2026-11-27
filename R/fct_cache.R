@@ -56,7 +56,16 @@ cache_disk_qs2 <- function(dir, max_size = 2 * 1024^3, max_age = Inf,
     },
     set = function(key, value) {
       tmp <- paste0(pathof(key), ".", Sys.getpid(), ".tmp")
-      qs_save(value, tmp, compress_level = compress_level)
+      # A failed write (disk full, interrupted) must not leave the temp file
+      # behind, nor fail the plot whose result was being cached.
+      ok <- tryCatch({ qs_save(value, tmp, compress_level = compress_level); TRUE },
+                     error = function(e) {
+                       unlink(tmp)
+                       warning("Could not write the disk cache: ", conditionMessage(e),
+                               call. = FALSE)
+                       FALSE
+                     })
+      if (!ok) return(invisible(FALSE))
       suppressWarnings(file.remove(pathof(key)))
       if (!file.rename(tmp, pathof(key))) {
         file.copy(tmp, pathof(key), overwrite = TRUE); unlink(tmp)
@@ -67,7 +76,9 @@ cache_disk_qs2 <- function(dir, max_size = 2 * 1024^3, max_age = Inf,
     exists = function(key) file.exists(pathof(key)),
     remove = function(key) { unlink(pathof(key)); invisible(TRUE) },
     reset  = function() {
-      unlink(list.files(dir, pattern = "\\.qs2$", full.names = TRUE)); invisible(TRUE)
+      # also any temp file a crashed write left behind
+      unlink(list.files(dir, pattern = "[.]qs2([.][0-9]+[.]tmp)?$", full.names = TRUE))
+      invisible(TRUE)
     },
     keys   = function() sub("\\.qs2$", "", list.files(dir, pattern = "\\.qs2$")),
     prune  = function() { do_prune(); invisible(TRUE) },
