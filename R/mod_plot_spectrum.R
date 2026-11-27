@@ -353,8 +353,9 @@ mod_plot_spectrum_server <- function(id, rv, included) {
     # later to the ANNOTATED peaks, not here -- the user wants the N strongest hits,
     # not annotation restricted to the N strongest peaks of the whole spectrum.
     ann_peaks <- function(df) {
-      df[is.finite(df$intensity) &
-           df$intensity >= ann_floor() * max(df$intensity, na.rm = TRUE), , drop = FALSE]
+      ok <- is.finite(df$intensity)
+      if (!any(ok)) return(df[0, , drop = FALSE])   # empty scan: max() would be -Inf
+      df[ok & df$intensity >= ann_floor() * max(df$intensity[ok]), , drop = FALSE]
     }
 
     # findMAIN ranked hypotheses (auto mode). The selected row (default the top,
@@ -810,6 +811,9 @@ copy_js <- function(textarea_id) {
 #' @importFrom ggplot2 geom_point geom_text geom_segment scale_color_manual aes labs
 #' @noRd
 annotate_layers <- function(p, ar, df, palette) {
+  # An empty spectrum (no peaks left after the filters) has nothing to label, and
+  # max() over it warns and returns -Inf.
+  if (!any(is.finite(df$intensity))) return(p)
   ymax <- max(df$intensity, na.rm = TRUE)
   pal4 <- brewer_qual(4, palette)
   if (identical(ar$mode, "diff")) {

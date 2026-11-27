@@ -149,3 +149,12 @@ test_that("a precursor-map click loads its MS2 scan despite an MS1 global filter
     expect_equal(st$msLevel[match(unique(spec_df()$scan), st$scan)], 1L)
   }))
 })
+
+test_that("annotation layers on an empty spectrum add nothing and don't warn", {
+  # A scan with no peaks left after the filters used to warn
+  # "no non-missing arguments to max; returning -Inf".
+  p <- ggplot2::ggplot()
+  empty <- tibble::tibble(mz = numeric(), intensity = numeric())
+  expect_no_warning(out <- annotate_layers(p, list(mode = "adduct"), empty, "Set1"))
+  expect_identical(out, p)
+})
