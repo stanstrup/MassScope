@@ -69,7 +69,7 @@ mod_plot_map_server <- function(id, rv, included) {
       cp <- read_centroid_spec(input)
       withProgress(message = "Reading peaks\u2026", value = 0.3, {
         extract_over_files(inc, function(p) extract_peaks(p, rv$filter, cp),
-                           cols = "sample_id", scan = TRUE,
+                           cols = "sample_id",
                            on_error = notify_read_failures)
       })
     })

@@ -136,3 +136,15 @@ test_that("chromatogram tooltips get the precursor m/z of MSn scans only", {
   expect_equal(ms2$precursorMZ, st$precursorMZ[match(ms2$scan, st$scan)])
   expect_equal(precursor_tip(c(NA, 500.12346)), c("", "\nprecursor m/z: 500.1235"))
 })
+
+test_that("extract_peaks carries each peak's acquisition number", {
+  skip_if_not_installed("faahKO")
+  p <- list.files(system.file("cdf", "KO", package = "faahKO"), full.names = TRUE)[1]
+  pk <- extract_peaks(p, empty_filter())
+  st <- file_scan_table(p)
+  expect_type(pk$scan, "integer")
+  expect_false(anyNA(pk$scan))
+  # same scan as the header table gives for that retention time
+  i <- sample(nrow(pk), 50)
+  expect_equal(pk$scan[i], st$scan[match(round(pk$rt[i], 3), round(st$rt, 3))])
+})

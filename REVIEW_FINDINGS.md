@@ -57,7 +57,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 - [x] **E3** Precursors re-extract on a group rename (depend on `included()`, no
   cache); join metadata at plot time, legend by `disp_name`, one `ggplot()` call.
   `R/mod_plot_precursors.R:41-87`. Votes 4/0/0.
-- [ ] **E4** MS map scan numbers via `file_scan_table` + float rt matching; take
+- [x] **E4** MS map scan numbers via `file_scan_table` + float rt matching; take
   `acquisitionNum(sp)` in `extract_peaks`. Check CDF first.
   `R/fct_extract.R:152,237`. Votes 2/2/0.
 - [x] **E5** mzR preload duplicated outside `set_daemons`; `setup_runtime` spawns

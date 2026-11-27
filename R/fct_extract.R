@@ -156,18 +156,24 @@ extract_spectrum <- function(path, rt = NA_real_, scan = NA_integer_, f = list()
 #' @importFrom tibble tibble
 #' @noRd
 extract_peaks <- function(path, f = list(), cp = NULL) {
+  empty <- tibble(rt = numeric(), mz = numeric(), intensity = numeric(),
+                  scan = integer())
   sp <- get_spectra(path)
   sp <- apply_filters_spectra(sp, f, cp)
-  if (!length(sp)) return(tibble(rt = numeric(), mz = numeric(), intensity = numeric()))
+  if (!length(sp)) return(empty)
   rt <- Spectra::rtime(sp)
+  # The acquisition number is the same header field file_scan_table() reads, so
+  # no rt -> scan matching is needed.
+  scan <- as.integer(Spectra::acquisitionNum(sp))
   # peaksData() is an S4 SimpleList; coerce to a base list so do.call(rbind, ...)
   # and vapply work without relying on BiocGenerics::rbind being attached
   # (it isn't, inside the package namespace).
   pd <- as.list(Spectra::peaksData(sp))
   lens <- vapply(pd, nrow, integer(1))
   mat <- do.call(rbind, pd)
-  if (is.null(mat)) return(tibble(rt = numeric(), mz = numeric(), intensity = numeric()))
-  tibble(rt = rep(rt, lens), mz = mat[, "mz"], intensity = mat[, "intensity"])
+  if (is.null(mat)) return(empty)
+  tibble(rt = rep(rt, lens), mz = mat[, "mz"], intensity = mat[, "intensity"],
+         scan = rep(scan, lens))
 }
 
 #' Bin long peak data into an rt x m/z grid for heatmap / surface display.
@@ -210,27 +216,26 @@ file_scan_table <- function(path) {
 #' Acquisition number(s) for retention time(s) by matching a file's scan table.
 #' Matched on rt rounded to 3 decimals: the Spectra/xcms rtime and the mzR header
 #' table agree to ms precision, so 3 decimals is a safe exact-match key. Single
-#' home for that contract (used by add_scan_numbers and extract_over_files).
+#' home for that contract (used by add_scan_numbers).
 #' @noRd
 scan_for_rt <- function(rt, scan_table) {
   scan_table$scan[match(round(rt, 3), round(scan_table$rt, 3))]
 }
 
 #' Run a per-file `extractor(path)` over the included files, attach the requested
-#' sample metadata, optionally join scan numbers by rt, and bind into one tibble.
+#' sample metadata, and bind into one tibble.
 #' The extractor is wrapped with possibly so an unreadable file is SKIPPED
 #' (its name passed to `on_error`) rather than aborting the whole multi-file plot.
 #' Keeps the Shiny layer out: the caller supplies `on_error` for any notification.
 #' @param files_df included files (needs id, path, name, sample_group)
 #' @param extractor function(path) -> tibble with an `rt` column
 #' @param cols metadata to attach: any of sample_id / sample_name / sample_group
-#' @param scan join acquisition numbers by rt (MS map)
 #' @param on_error function(failed_names) called once if any file failed
 #' @importFrom purrr possibly
 #' @importFrom dplyr bind_rows
 #' @noRd
 extract_over_files <- function(files_df, extractor, cols = "sample_id",
-                               scan = FALSE, on_error = NULL) {
+                               on_error = NULL) {
   safe <- possibly(extractor, otherwise = NULL)
   pieces <- lapply(seq_len(nrow(files_df)), function(i) {
     d <- safe(files_df$path[i])
@@ -240,7 +245,6 @@ extract_over_files <- function(files_df, extractor, cols = "sample_id",
       if ("sample_name"  %in% cols) d$sample_name  <- files_df$name[i]
       if ("sample_group" %in% cols) d$sample_group <- files_df$sample_group[i]
       if ("disp_name"    %in% cols) d$disp_name    <- files_df$disp_name[i]
-      if (scan) d$scan <- scan_for_rt(d$rt, file_scan_table(files_df$path[i]))
     }
     d
   })
