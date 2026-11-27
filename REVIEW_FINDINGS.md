@@ -33,7 +33,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 - [x] **B7** MS map click always opens the first included file (`inc$id[1]`).
   Carry `key = sample_id` on the traces and use `wire_selection`. Also `export_gg`
   lacks the non-finite/zero `cmax` guard. `R/mod_plot_map.R:162`. Votes 4/0/0.
-- [ ] **B8** "Suggest molecular ion" results (an `eventReactive`) go stale after
+- [x] **B8** "Suggest molecular ion" results (an `eventReactive`) go stale after
   moving to another scan/file; the old anchor is drawn on the new spectrum. Reset
   on spectrum change. `R/mod_plot_spectrum.R:367`. Votes 3/1/0.
 - [ ] **B9** `text_traces_vertical` rotates the difference-network Δ labels too

@@ -187,3 +187,28 @@ test_that("with annotation off a spectrum change reads the scan once", {
     expect_equal(reads, 1L)
   }))
 })
+
+test_that("Suggest results are cleared when the spectrum changes", {
+  # Regression: the ranked hypotheses were an eventReactive on the Suggest
+  # button, so they (and the anchor drawn from them) outlived a scan change.
+  p <- profile_file()
+  files <- tibble::tibble(
+    id = "f1", path = p, name = basename(p), sample_group = "g1",
+    include = TRUE, status = "ready", n_spectra = 1L,
+    rt_min = 0, rt_max = 1e5, mz_min = 0, mz_max = 1e4,
+    ms_levels = "1", polarities = "1", charges = NA_character_,
+    spec_mode = "mixed", message = NA_character_)
+  rv <- make_rv(); rv$files <- files
+  included <- reactive(files)
+  suppressWarnings(shiny::testServer(mod_plot_spectrum_server,
+                    args = list(rv = rv, included = included), {
+    session$setInputs(layout = "single", rt = 0.5, scan = NA, annotate = TRUE,
+                      ann_mode = "auto", ann_pol = "pos", ann_tol = 10,
+                      ann_unit = "ppm", ann_match_snr = 0, ann_min_int = 0,
+                      cmode = "off", csnr = 0, chws = 2, ck = 0, showpts = FALSE)
+    session$setInputs(suggest = 1)
+    expect_false(is.null(ranked_val()))
+    session$setInputs(rt = 0.6)
+    expect_null(ranked_val())
+  }))
+})

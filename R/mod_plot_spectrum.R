@@ -365,13 +365,23 @@ mod_plot_spectrum_server <- function(id, rv, included) {
 
     # findMAIN ranked hypotheses (auto mode). The selected row (default the top,
     # best-scoring one) becomes the anchor -- no manual anchor entry in auto mode.
-    ranked <- eventReactive(input$suggest, {
-      df <- ann_candidates(); validate(need(nrow(df) > 0, "No spectrum."))
+    # Held in a reactiveVal and cleared when the spectrum changes: an
+    # eventReactive kept the old hypotheses (and drew the old anchor) on the
+    # next scan or file until Suggest was pressed again.
+    ranked_val <- reactiveVal(NULL)
+    observeEvent(input$suggest, {
+      df <- ann_candidates()
+      if (!nrow(df)) {
+        showNotification("No spectrum to rank.", type = "warning", duration = 3)
+        return()
+      }
       ppm <- if (identical(input$ann_unit, "ppm")) input$ann_tol else 5
-      withProgress(message = "Ranking molecular-ion hypotheses\u2026", value = 0.5,
+      ranked_val(withProgress(message = "Ranking molecular-ion hypotheses\u2026", value = 0.5,
                    rank_anchors(df, mode = input$ann_pol, ppm = ppm, rel_floor = 0,
-                                top_n = 25L))
+                                top_n = 25L)))
     })
+    observeEvent(list(spec_sel(), cur_file()), ranked_val(NULL), ignoreInit = TRUE)
+    ranked <- reactive({ r <- ranked_val(); req(r); r })
     auto_pick <- reactiveVal(1L)
     observeEvent(ranked(), auto_pick(1L))                       # reset on a new run
     observeEvent(input$ranked_rows_selected, auto_pick(input$ranked_rows_selected))
