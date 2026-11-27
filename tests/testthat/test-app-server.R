@@ -53,6 +53,7 @@ test_that("the extraction cache key changes when a path gets a different file id
     k1 <- data_key()
     swapped <- ready_rows(2); swapped$id <- rev(swapped$id)
     rv$files <- swapped
+    session$flushReact()                    # starts the debounce timer
     session$elapse(SELECTION_DEBOUNCE_MS + 50)
     expect_false(identical(data_key(), k1))
     expect_identical(data_key()$paths, k1$paths)
