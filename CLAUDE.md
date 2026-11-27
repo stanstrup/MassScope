@@ -200,6 +200,6 @@ Consequences baked into the architecture:
   it back without checking that.
 
 ## Git workflow
-Commit **sequentially**, one logical change per commit. End messages with
-`Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`. Author is
-Jan Stanstrup <stanstrup@gmail.com>.
+Commit **sequentially**, one logical change per commit. Author is
+Jan Stanstrup <stanstrup@gmail.com>. **Do not mention Claude in commit messages**:
+no `Co-Authored-By`, no session links, no "generated with" lines.
