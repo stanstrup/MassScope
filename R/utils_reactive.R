@@ -297,3 +297,9 @@ zoom_keeper <- function(source) {
     reset = clear
   )
 }
+
+#' Coerce a possibly-character/NA logical vector to a safe logical.
+#' @noRd
+isTRUE_vec <- function(x) {
+  out <- as.logical(x); out[is.na(out)] <- FALSE; out
+}

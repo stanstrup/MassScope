@@ -265,8 +265,3 @@ mod_plot_eic_server <- function(id, rv, dataset, meta, data_key) {
     mod_export_server("export", plot_gg, rv, "eic", zoom = zoom$ranges)
   })
 }
-
-# Coerce a possibly-character/NA logical vector to a safe logical.
-isTRUE_vec <- function(x) {
-  out <- as.logical(x); out[is.na(out)] <- FALSE; out
-}
