@@ -94,6 +94,9 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
   `qs_save` fails (`R/fct_cache.R:57`). Votes 4/0/0.
 - [x] **H2** Drop purrr (one `possibly()`); drop the unused
   `importFrom(tibble, as_tibble)`. Votes 4/0/0 (low value).
+  *Partly reverted:* `ARCHITECTURE_REVIEW.md` records that `possibly` was chosen
+  over `tryCatch` at the user's request, so purrr stays; only the unused tibble
+  import is gone.
 - [x] **H3** Delete `tests/testthat/_problems/` and git-ignore it; tests for the
   settings round-trip (empty vectors, NA), filter startup identity (B5), time-unit
   switch (B6). Votes 4/0/0.

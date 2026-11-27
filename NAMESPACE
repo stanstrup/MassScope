@@ -77,6 +77,7 @@ importFrom(plotly,
   plotlyOutput,
   renderPlotly
 )
+importFrom(purrr,possibly)
 importFrom(qs2,
   qs_read,
   qs_save

@@ -139,7 +139,7 @@ Each item: **effort** (S/M/L) · **risk** (low/med/high) · **definition of done
 
 6. ✅ **Per-file error isolation in the multi-file extraction loops** — S · low.
    *DoD:* one unreadable file is skipped + reported instead of aborting the plot
-   (issue 8). *Done* via a `tryCatch` wrapper inside `extract_over_files` (item 8) —
+   (issue 8). *Done* via `purrr::possibly` inside `extract_over_files` (item 8) —
    per request, `possibly` rather than `tryCatch`. Verified with a bogus path.
 
 7. ✅ **Repo hygiene** — S · trivial.

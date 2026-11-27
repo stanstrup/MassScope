@@ -224,18 +224,19 @@ scan_for_rt <- function(rt, scan_table) {
 
 #' Run a per-file `extractor(path)` over the included files, attach the requested
 #' sample metadata, and bind into one tibble.
-#' The extractor is wrapped in tryCatch so an unreadable file is SKIPPED
+#' The extractor is wrapped with possibly so an unreadable file is SKIPPED
 #' (its name passed to `on_error`) rather than aborting the whole multi-file plot.
 #' Keeps the Shiny layer out: the caller supplies `on_error` for any notification.
 #' @param files_df included files (needs id, path, name, sample_group)
 #' @param extractor function(path) -> tibble with an `rt` column
 #' @param cols metadata to attach: any of sample_id / sample_name / sample_group
 #' @param on_error function(failed_names) called once if any file failed
+#' @importFrom purrr possibly
 #' @importFrom dplyr bind_rows
 #' @noRd
 extract_over_files <- function(files_df, extractor, cols = "sample_id",
                                on_error = NULL) {
-  safe <- function(p) tryCatch(extractor(p), error = function(e) NULL)
+  safe <- possibly(extractor, otherwise = NULL)
   pieces <- lapply(seq_len(nrow(files_df)), function(i) {
     d <- safe(files_df$path[i])
     if (is.null(d)) return(NULL)              # read failed -> skip this file
