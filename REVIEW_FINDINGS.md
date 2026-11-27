@@ -42,7 +42,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 - [x] **B10** Facet/Stacked layouts look up the ion mode with the first row's scan
   against the single-view file; it also drives the HMDB search mode.
   `R/mod_plot_spectrum.R:295`. Votes 1/3/0.
-- [ ] **B11** `tryCatch(error = function(e) NULL)` around the overlays swallows real
+- [x] **B11** `tryCatch(error = function(e) NULL)` around the overlays swallows real
   findMAIN/Rdisop/enviPat failures silently. Keep swallowing `req()`'s silent
   error; notify on the rest (don't rethrow — one overlay must not blank the plot).
   `R/mod_plot_spectrum.R:615,622,668`. Votes 4/0/0.

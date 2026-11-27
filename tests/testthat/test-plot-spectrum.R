@@ -239,3 +239,32 @@ test_that("difference-network labels stay horizontal", {
     expect_false(any(angles == -90))
   }))
 })
+
+test_that("a failing annotation is reported and the spectrum still draws", {
+  # Regression: tryCatch(error = NULL) hid real failures; the overlay vanished.
+  p <- profile_file()
+  files <- tibble::tibble(
+    id = "f1", path = p, name = basename(p), sample_group = "g1",
+    include = TRUE, status = "ready", n_spectra = 1L,
+    rt_min = 0, rt_max = 1e5, mz_min = 0, mz_max = 1e4,
+    ms_levels = "1", polarities = "1", charges = NA_character_,
+    spec_mode = "mixed", message = NA_character_)
+  rv <- make_rv(); rv$files <- files
+  included <- reactive(files)
+  notes <- character()
+  local_mocked_bindings(
+    annotate_anchor = function(...) stop("boom"),
+    showNotification = function(ui, ...) { notes <<- c(notes, ui); invisible() })
+  suppressWarnings(shiny::testServer(mod_plot_spectrum_server,
+                    args = list(rv = rv, included = included), {
+    session$setInputs(layout = "single", rt = 0.5, scan = NA, annotate = TRUE,
+                      ann_mode = "manual", ann_pol = "pos", ann_adduct = "[M+H]+",
+                      anchor_mz = 500, ann_tol = 10, ann_unit = "ppm",
+                      ann_match_snr = 0, ann_min_int = 0, ann_niso = 2,
+                      ann_max_z = 1, ann_frag = TRUE, ann_ghost = FALSE,
+                      ann_iso_tol = 5, ann_iso_dec = TRUE, ann_top_n = NA,
+                      cmode = "off", csnr = 0, chws = 2, ck = 0, showpts = FALSE)
+    expect_s3_class(plot_gg(), "ggplot")
+    expect_true(any(grepl("Annotation failed: boom", notes)))
+  }))
+})

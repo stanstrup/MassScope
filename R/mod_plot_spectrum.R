@@ -546,6 +546,18 @@ mod_plot_spectrum_server <- function(id, rv, included) {
     # this because each stick is its own segment anyway.
     is_prof <- function(df) isTRUE(all(df$profile))
 
+    # An overlay that can't be computed yet (req()/validate(): no anchor, Suggest
+    # not run) is simply left off. A real failure (findMAIN, Rdisop, enviPat) is
+    # reported instead of the overlay silently vanishing; the spectrum still
+    # draws. One notification per overlay, replaced rather than stacked.
+    overlay_or_null <- function(expr, what) tryCatch(expr, error = function(e) {
+      if (!inherits(e, "shiny.silent.error"))
+        showNotification(sprintf("%s failed: %s", what, conditionMessage(e)),
+                         type = "error", duration = 8,
+                         id = session$ns(paste0("overlay_", make.names(what))))
+      NULL
+    })
+
     plot_gg <- reactive({
       df <- spec_df(); req(nrow(df) > 0)
       # df$sample_name is already the unique display label (disambiguated + stripped)
@@ -631,14 +643,14 @@ mod_plot_spectrum_server <- function(id, rv, included) {
         p <- p + facet_wrap(~ sample_name, ncol = 1, scales = "free_y")
       # overlay annotations (single view only)
       if (identical(input$layout, "single") && isTRUE(input$annotate)) {
-        ar <- tryCatch(ann_result(), error = function(e) NULL)
+        ar <- overlay_or_null(ann_result(), "Annotation")
         if (!is.null(ar))
           p <- with_plotly_aes(annotate_layers(p, ar, df, rv$settings$qual_palette))
       }
       # isotope-pattern overlay: the simulated theoretical envelope (single view)
       if (identical(input$layout, "single") && isTRUE(input$annotate) &&
           identical(input$ann_mode, "iso")) {
-        ov <- tryCatch(iso_overlay(), error = function(e) NULL)
+        ov <- overlay_or_null(iso_overlay(), "Isotope pattern")
         if (!is.null(ov) && nrow(ov)) {
           ov$.tip <- sprintf("%s (theoretical)\nm/z %.4f", ov$formula, ov$mz)
           # Translucent filled envelope + a thin outline, so the raw peaks show
@@ -687,7 +699,7 @@ mod_plot_spectrum_server <- function(id, rv, included) {
         # send it the search URL. Ion mode follows the displayed scan (ann_pol).
         mode <- if (identical(input$ann_pol, "neg")) "neg" else "pos"
         ann <- if (isTRUE(input$annotate) && identical(input$layout, "single"))
-                 tryCatch(ann_result()$table, error = function(e) NULL)
+                 overlay_or_null(ann_result(), "Annotation")$table
         url <- hmdb_peak_url(mz, mode, ann,
                              adducts = rv$settings[[paste0("hmdb_adducts_", mode)]],
                              tol = rv$settings$hmdb_tol %||% 5,
