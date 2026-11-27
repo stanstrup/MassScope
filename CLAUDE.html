@@ -142,7 +142,7 @@
 <li>
 <strong>Settings persist</strong> across restarts (<code>fct_settings_store.R</code>): an allow-list (<code>.PERSISTED_SETTINGS</code>) is written as JSON to <code>R_user_dir("MassScope","config")</code> (not the package dir — must work for a normal install). Restored on startup, saved debounced.</li>
 <li>
-<strong>Cross-plot nav</strong> via <code>rv$selection</code> (list: plot, file_id, rt[sec], mz). A plotly <code>key = sample_id</code> aesthetic carries the file id into click events.</li>
+<strong>Cross-plot nav</strong> via <code>rv$selection</code> (list: plot, file_id, rt[sec], mz, scan). A plotly <code>key = sample_id</code> aesthetic carries the file id into click events. <code>scan</code> is set only by the precursor map (looked up from the clicked point): the Spectrum tab then loads that exact scan, bypassing the global MS-level filter; without it the nearest scan at the global level is used.</li>
 <li>
 <strong>Heavy single-file views are gated</strong> (MS map “Plot” button) so they don’t auto-render on every change.</li>
 <li>Match surrounding <strong>code style</strong>: 2-space indent, <code>&lt;-</code> assignment, roxygen-ish <code>#'</code> comments on helpers, <code>ggplot2::</code>/<code>Spectra::</code> namespacing in <code>fct_*</code> (modules may use attached funcs). Keep comments about <em>why</em>, not <em>what</em>.</li>
