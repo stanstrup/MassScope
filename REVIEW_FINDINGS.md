@@ -39,7 +39,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 - [x] **B9** `text_traces_vertical` rotates the difference-network Δ labels too
   (meant horizontal). `R/mod_plot_spectrum.R:915`. Votes 1/3/0 (reproduced by its
   reviewer).
-- [ ] **B10** Facet/Stacked layouts look up the ion mode with the first row's scan
+- [x] **B10** Facet/Stacked layouts look up the ion mode with the first row's scan
   against the single-view file; it also drives the HMDB search mode.
   `R/mod_plot_spectrum.R:295`. Votes 1/3/0.
 - [ ] **B11** `tryCatch(error = function(e) NULL)` around the overlays swallows real

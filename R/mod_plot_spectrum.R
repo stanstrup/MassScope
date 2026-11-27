@@ -295,9 +295,17 @@ mod_plot_spectrum_server <- function(id, rv, included) {
     # file majority) — polarity-switching files alternate pos/neg scan to scan, so
     # the anchor's mode must follow the scan actually on screen. Falls back to the
     # file majority when the scan carries no polarity (e.g. CDF).
+    # In Facet/Stacked the rows come from every included file, so the scan must be
+    # looked up in the file it was read from, not in the single-view file.
     observeEvent(spec_df(), {
       d <- spec_df()
-      st <- file_scan_table(cur_row()$path)
+      path <- cur_row()$path
+      if (!identical(input$layout, "single") && nrow(d)) {
+        inc <- included()
+        p <- inc$path[match(d$sample_name[1], inc$disp_name)]
+        if (length(p) == 1 && !is.na(p)) path <- p
+      }
+      st <- file_scan_table(path)
       pol <- if (nrow(d) && is.finite(d$scan[1]))
                st$polarity[match(d$scan[1], st$scan)] else NA_integer_
       if (!isTRUE(is.finite(pol)) || !(pol %in% c(0L, 1L))) {
