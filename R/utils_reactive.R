@@ -100,10 +100,8 @@ PLOTLY_EVENTS <- c("plotly_click", "plotly_relayout", "plotly_doubleclick")
 #' @importFrom plotly event_register
 #' @noRd
 register_plotly_events <- function(p) {
-  p %>%
-    event_register("plotly_click") %>%
-    event_register("plotly_relayout") %>%
-    event_register("plotly_doubleclick")
+  # The same list prime_plotly_events() seeds, so the two can't drift apart.
+  Reduce(event_register, PLOTLY_EVENTS, p)
 }
 
 #' Pre-seed plotly's per-session registry of event IDs so `event_data()` does

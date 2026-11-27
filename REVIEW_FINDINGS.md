@@ -83,7 +83,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 - [ ] **C4** Table-driven settings spec replacing four parallel lists. Votes 1/2/1.
 - [ ] **C5** Merge `add_scan_numbers`/`add_precursor_mz`; `memo_by_path()`.
   Votes 1/3/0.
-- [ ] **C6** `register_plotly_events` loops over `PLOTLY_EVENTS`. Votes 3/1/0.
+- [x] **C6** `register_plotly_events` loops over `PLOTLY_EVENTS`. Votes 3/1/0.
 
 ## Housekeeping
 
