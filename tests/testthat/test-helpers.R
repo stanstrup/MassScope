@@ -212,3 +212,9 @@ test_that("pos_num falls back on NULL, NA, zero and non-numbers", {
   expect_equal(pos_num(c(1, 2), 8), 8)
   expect_equal(pos_num(6, 8), 6)
 })
+
+test_that("combined_ranges orders MS levels numerically", {
+  fdf <- tibble::tibble(rt_min = 0, rt_max = 1, mz_min = 1, mz_max = 2,
+                        ms_levels = "1, 2, 10", polarities = "1", charges = "1")
+  expect_identical(combined_ranges(fdf)$ms_levels, c("1", "2", "10"))
+})

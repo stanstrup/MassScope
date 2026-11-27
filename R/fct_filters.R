@@ -251,7 +251,9 @@ combined_ranges <- function(files_df) {
   list(
     rt = rng(files_df$rt_min, files_df$rt_max),
     mz = rng(files_df$mz_min, files_df$mz_max),
-    ms_levels  = sort(split_vals(files_df$ms_levels)),
+    # numeric order: as text "10" would sort before "2"
+    ms_levels  = { v <- split_vals(files_df$ms_levels)
+                   v[order(suppressWarnings(as.integer(v)))] },
     polarities = setdiff(split_vals(files_df$polarities), c("", NA)),
     charges    = sort(as.integer(split_vals(files_df$charges)))
   )
