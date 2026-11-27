@@ -4,19 +4,53 @@
 #' @noRd
 mod_settings_ui <- function(id) {
   ns <- NS(id)
+  # The nav panel is a fillable container, and a fillable card body shrinks its
+  # children to fit the card's height: the inline rows (tolerance + unit, width +
+  # height + units) collapsed and the next field's label was drawn over them.
+  # Non-filling cards / bodies and rows keep every field at its natural height
+  # and let the page scroll instead.
+  settings_card <- function(title, ...)
+    card(fill = FALSE, class = "ms-settings", card_header(title),
+         card_body(fillable = FALSE, ...))
+  row <- function(widths, ...) layout_columns(col_widths = widths, fill = FALSE, ...)
+  # Non-filling bodies drop the flex gap, so give help texts their own spacing.
+  css <- tags$style(".ms-settings .help-block{display:block;margin-bottom:.6rem}")
   layout_columns(
-    col_widths = c(6, 6),
-    card(
-      card_header("Data reading"),
-      helpText(HTML("Files are read via <code>Spectra</code>/<code>xcms</code> with ",
-               "<code>BiocParallel::SerialParam()</code> registered \u2014 the default ",
-               "<code>SnowParam</code> backend is ~100\u00d7 slower.")),
-      sliderInput(ns("daemons"), "Parallel readers (mirai daemons)",
-                  min = 1, max = max(2L, detectCores()),
-                  value = max(1L, detectCores() - 1L), step = 1)
+    col_widths = c(6, 6), fill = FALSE,
+    div(
+      css,
+      settings_card(
+        "Data reading",
+        helpText(HTML("Files are read via <code>Spectra</code>/<code>xcms</code> with ",
+                 "<code>BiocParallel::SerialParam()</code> registered \u2014 the default ",
+                 "<code>SnowParam</code> backend is ~100\u00d7 slower.")),
+        sliderInput(ns("daemons"), "Parallel readers (mirai daemons)",
+                    min = 1, max = max(2L, detectCores()),
+                    value = max(1L, detectCores() - 1L), step = 1)
+      ),
+      settings_card(
+        "EIC & HMDB search",
+        helpText(strong("EIC defaults"), " \u2014 applied to new targets and the paste box."),
+        row(c(6, 6),
+            numericInput(ns("default_tol"), "Default \u00b1 tolerance", value = 10, min = 0),
+            selectInput(ns("default_tol_unit"), "Unit", choices = c("ppm", "Da"))),
+        hr(),
+        helpText(strong("HMDB search"), " \u2014 a Spectrum peak click set to ",
+                 "\u201csearch HMDB\u201d opens hmdb.ca with these. An annotated peak ",
+                 "searches its own adduct instead."),
+        row(c(6, 6),
+            numericInput(ns("hmdb_tol"), "\u00b1 tolerance", value = 5, min = 0),
+            selectInput(ns("hmdb_tol_unit"), "Unit", choices = c("ppm", "Da"))),
+        selectizeInput(ns("hmdb_adducts_pos"), "Adducts, positive mode",
+                       choices = HMDB_ADDUCTS$pos, selected = HMDB_DEFAULT_ADDUCTS$pos,
+                       multiple = TRUE, width = "100%"),
+        selectizeInput(ns("hmdb_adducts_neg"), "Adducts, negative mode",
+                       choices = HMDB_ADDUCTS$neg, selected = HMDB_DEFAULT_ADDUCTS$neg,
+                       multiple = TRUE, width = "100%")
+      )
     ),
-    card(
-      card_header("Appearance & export"),
+    settings_card(
+      "Appearance & export",
       radioButtons(ns("time_unit"), "Retention-time unit", inline = TRUE,
                    choices = c("Minutes" = "min", "Seconds" = "sec"), selected = "min"),
       selectInput(ns("qual_palette"), "Qualitative palette (groups, EICs)",
@@ -26,36 +60,12 @@ mod_settings_ui <- function(id) {
       checkboxInput(ns("invert_scale"), "Invert colour scale (light \u2192 dark)",
                     value = TRUE),
       hr(),
-      helpText(strong("EIC defaults"), " \u2014 applied to new targets and the paste box."),
-      layout_columns(
-        col_widths = c(6, 6),
-        numericInput(ns("default_tol"), "Default \u00b1 tolerance", value = 10, min = 0),
-        selectInput(ns("default_tol_unit"), "Unit", choices = c("ppm", "Da"))
-      ),
-      hr(),
-      helpText(strong("HMDB search"), " \u2014 a Spectrum peak click set to ",
-               "\u201csearch HMDB\u201d opens hmdb.ca with these. An annotated peak ",
-               "searches its own adduct instead."),
-      layout_columns(
-        col_widths = c(6, 6),
-        numericInput(ns("hmdb_tol"), "\u00b1 tolerance", value = 5, min = 0),
-        selectInput(ns("hmdb_tol_unit"), "Unit", choices = c("ppm", "Da"))
-      ),
-      selectizeInput(ns("hmdb_adducts_pos"), "Adducts, positive mode",
-                     choices = HMDB_ADDUCTS$pos, selected = HMDB_DEFAULT_ADDUCTS$pos,
-                     multiple = TRUE),
-      selectizeInput(ns("hmdb_adducts_neg"), "Adducts, negative mode",
-                     choices = HMDB_ADDUCTS$neg, selected = HMDB_DEFAULT_ADDUCTS$neg,
-                     multiple = TRUE),
-      hr(),
       selectInput(ns("export_format"), "Default export format",
                   choices = c("png", "svg", "pdf", "rds")),
-      layout_columns(
-        col_widths = c(4, 4, 4),
-        numericInput(ns("export_width"),  "Width",  value = 8, min = 1),
-        numericInput(ns("export_height"), "Height", value = 5, min = 1),
-        selectInput(ns("export_units"),   "Units",  choices = c("in", "cm", "mm", "px"))
-      ),
+      row(c(4, 4, 4),
+          numericInput(ns("export_width"),  "Width",  value = 8, min = 1),
+          numericInput(ns("export_height"), "Height", value = 5, min = 1),
+          selectInput(ns("export_units"),   "Units",  choices = c("in", "cm", "mm", "px"))),
       numericInput(ns("export_dpi"), "DPI (png)", value = 300, min = 36, max = 1200)
     )
   )
