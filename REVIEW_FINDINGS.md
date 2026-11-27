@@ -63,7 +63,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 - [ ] **E5** mzR preload duplicated outside `set_daemons`; `setup_runtime` spawns
   the default pool and the settings restore respawns at the saved size.
   `R/daemons.R`, `R/mod_settings.R:129`. Votes 2/2/0.
-- [ ] **E6** `difference_network` is an O(n²) loop with a tibble per hit (2.1 s at
+- [x] **E6** `difference_network` is an O(n²) loop with a tibble per hit (2.1 s at
   300 peaks). Index intensities by i,j; vectorise. `R/fct_annotate.R:290`.
   Votes 4/0/0 (low priority).
 - [ ] **E7** `iso_neutral` runs Rdisop with annotation unticked

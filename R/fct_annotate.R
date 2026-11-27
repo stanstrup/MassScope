@@ -286,35 +286,47 @@ difference_network <- function(spec_df, tol = 10, unit = "ppm", top_n = 30L,
   cp <- utils::head(cp, top_n)
   af <- commonMZ::adducts_fragments
   af <- af[is.finite(af$mz_diff) & af$mz_diff > 0, , drop = FALSE]
-  rows <- list(); k <- 0L
-  for (i in seq_len(nrow(cp) - 1L)) for (j in (i + 1L):nrow(cp)) {
-    lo <- min(cp$mz[i], cp$mz[j]); hi <- max(cp$mz[i], cp$mz[j])
-    delta <- hi - lo
-    int_lo <- cp$intensity[cp$mz == lo][1]; int_hi <- cp$intensity[cp$mz == hi][1]
-    # The window is the instrument accuracy at BOTH peaks (errors add), NOT ppm of
-    # the tiny difference: a 10 ppm peak pair at m/z 425 leaves ~0.008 Da slack on
-    # an 18 Da loss, but ppm-of-18 would be 0.0002 Da and miss the whole ladder.
-    win <- tol_to_da(lo, tol, unit) + tol_to_da(hi, tol, unit)
-    if (ignore_isotopes) {
-      # Skip a near-isotope-spaced delta (k = 1..3, window k * iso_tol since the
-      # spacing error compounds). With iso_decreasing, only when the heavier peak
-      # is no more intense than the lighter (isotope direction) — so a -H2 loss
-      # (heavier peak more intense) is kept as a fragment.
-      ik <- round(delta / ISOTOPE_SPACING)
-      if (ik >= 1 && ik <= 3 && abs(delta - ik * ISOTOPE_SPACING) <= ik * iso_tol &&
-          (!iso_decreasing || int_hi <= int_lo)) next
-    }
-    m <- which(abs(af$mz_diff - delta) <= win)
-    if (length(m)) {
-      k <- k + 1L
-      rows[[k]] <- tibble(
-        mz_lo = lo, mz_hi = hi, delta = delta,
-        origin = clean_text(paste(af$origin[m], collapse = " | ")),
-        int_lo = int_lo, int_hi = int_hi)
-    }
+  # Every pair i < j at once (cp is intensity-ranked, so pairs come out in the
+  # same order the old double loop produced them). A pair loop with a tibble per
+  # hit took seconds at a few hundred peaks.
+  n <- nrow(cp)
+  ij <- which(upper.tri(matrix(FALSE, n, n)), arr.ind = TRUE)
+  ij <- ij[order(ij[, 1], ij[, 2]), , drop = FALSE]
+  i <- ij[, 1]; j <- ij[, 2]
+  lo_first <- cp$mz[i] <= cp$mz[j]
+  ilo <- ifelse(lo_first, i, j); ihi <- ifelse(lo_first, j, i)
+  lo <- cp$mz[ilo]; hi <- cp$mz[ihi]
+  int_lo <- cp$intensity[ilo]; int_hi <- cp$intensity[ihi]
+  delta <- hi - lo
+  # The window is the instrument accuracy at BOTH peaks (errors add), NOT ppm of
+  # the tiny difference: a 10 ppm peak pair at m/z 425 leaves ~0.008 Da slack on
+  # an 18 Da loss, but ppm-of-18 would be 0.0002 Da and miss the whole ladder.
+  win <- tol_to_da(lo, tol, unit) + tol_to_da(hi, tol, unit)
+  keep <- rep(TRUE, length(delta))
+  if (ignore_isotopes) {
+    # Skip a near-isotope-spaced delta (k = 1..3, window k * iso_tol since the
+    # spacing error compounds). With iso_decreasing, only when the heavier peak
+    # is no more intense than the lighter (isotope direction) — so a -H2 loss
+    # (heavier peak more intense) is kept as a fragment.
+    ik <- round(delta / ISOTOPE_SPACING)
+    iso <- ik >= 1 & ik <= 3 & abs(delta - ik * ISOTOPE_SPACING) <= ik * iso_tol &
+      (!iso_decreasing | int_hi <= int_lo)
+    keep <- !iso
   }
-  if (!k) return(empty)
-  do.call(rbind, rows)
+  # Any dictionary difference inside [delta - win, delta + win]? Counting through
+  # the sorted differences answers that for all pairs without a per-pair scan.
+  sd <- sort(af$mz_diff)
+  n_in <- findInterval(delta + win, sd) - findInterval(delta - win, sd, left.open = TRUE)
+  hit <- which(keep & n_in > 0)
+  if (!length(hit)) return(empty)
+  origin <- vapply(hit, function(h) {
+    m <- which(abs(af$mz_diff - delta[h]) <= win[h])
+    clean_text(paste(af$origin[m], collapse = " | "))
+  }, character(1))
+  out <- tibble(mz_lo = lo[hit], mz_hi = hi[hit], delta = delta[hit],
+                origin = origin, int_lo = int_lo[hit], int_hi = int_hi[hit])
+  # The count above and the exact test can disagree at a float boundary.
+  out[nzchar(out$origin), , drop = FALSE]
 }
 
 #' Flag isotope SATELLITES in a centroid list — the single isotope definition
