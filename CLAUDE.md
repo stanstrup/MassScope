@@ -170,7 +170,9 @@ Consequences baked into the architecture:
   MsExperiment is a file-backed S4 object, not worth disk-serialising. Clear-all resets
   the disk cache via `clear_ms_caches` → `clear_disk_cache`.
 - **Settings persist** across restarts (`fct_settings_store.R`): an allow-list
-  (`.PERSISTED_SETTINGS`) is written as JSON to `R_user_dir("MassScope","config")`
+  (the fields of `settings_spec()`, the one table that also gives `make_rv` its
+  defaults and drives the restore + observers in `mod_settings`) is written as
+  JSON to `R_user_dir("MassScope","config")`
   (not the package dir — must work for a normal install). Restored on startup, saved
   debounced.
 - **Cross-plot nav** via `rv$selection` (list: plot, file_id, rt[sec], mz, scan). A plotly

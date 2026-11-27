@@ -80,10 +80,10 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 - [x] **C3** `.flt_rt/.flt_pol/.flt_mz` returning NULL when unset, shared by
   `apply_filters` and `apply_filters_spectra`. Only with the equivalence tests
   green. Votes 2/2/0.
-- [-] **C4** Table-driven settings spec replacing four parallel lists. Votes 1/2/1.
-  *Deferred:* the reviewers split, and the riskiest part (the UI wiring) needs a
-  hands-on check. B4 already moved the persisted list into one typed table
-  (`.SETTING_KINDS`), which a full spec could grow from.
+- [x] **C4** Table-driven settings spec replacing four parallel lists. Votes 1/2/1.
+  Done on request as `settings_spec()`: defaults, shape and control per field;
+  make_rv, load/save, the restore and the observers are built from it. Checked
+  in the running app with a saved settings file.
 - [-] **C5** Merge `add_scan_numbers`/`add_precursor_mz`; `memo_by_path()`.
   Votes 1/3/0. *Deferred:* small gain, and merging the loops costs readability.
 - [x] **C6** `register_plotly_events` loops over `PLOTLY_EVENTS`. Votes 3/1/0.

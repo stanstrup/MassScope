@@ -46,26 +46,8 @@ make_rv <- function() {
     # User settings (mod_settings). A NESTED reactiveValues so each field is its
     # own reactive: changing the palette doesn't invalidate time-unit consumers
     # (a plain list slot would fan out every settings change to every reader).
-    settings = reactiveValues(
-      time_unit    = "min",          # "min" | "sec" \u2014 display unit for rt
-      qual_palette = "Set1",
-      seq_palette  = "viridis",
-      invert_scale = TRUE,
-      default_tol      = 10,         # default EIC tolerance for new targets
-      default_tol_unit = "ppm",      # "ppm" | "Da"
-      # HMDB search from a spectrum peak: its own (typically narrower) tolerance
-      # and the adducts searched for an unannotated peak, per ion mode.
-      hmdb_tol      = 5,
-      hmdb_tol_unit = "ppm",
-      hmdb_adducts_pos = HMDB_DEFAULT_ADDUCTS$pos,
-      hmdb_adducts_neg = HMDB_DEFAULT_ADDUCTS$neg,
-      daemons      = .default_daemons(),
-      export_format = "png",
-      export_width  = 8,
-      export_height = 5,
-      export_units  = "in",
-      export_dpi    = 300
-    )
+    # The fields and their defaults are declared in settings_spec().
+    settings = do.call(reactiveValues, settings_defaults())
   )
 }
 
