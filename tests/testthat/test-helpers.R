@@ -189,3 +189,26 @@ test_that("with_plotly_aes also mutes the cli-coloured warning (RStudio console)
     ggplot2::geom_line(data = d, ggplot2::aes(x = x, y = y, txt = t))),
     "unknown aesthetics")
 })
+
+test_that("settings round-trip keeps shapes and drops unusable values", {
+  withr::local_envvar(R_USER_CONFIG_DIR = withr::local_tempdir())
+  save_settings(list(export_dpi = NA_real_, default_tol = 5, invert_scale = NA,
+                     hmdb_adducts_pos = character(), hmdb_adducts_neg = "M-H",
+                     time_unit = NA_character_))
+  s <- load_settings()
+  expect_null(s$export_dpi)            # was persisted as the string "NA"
+  expect_null(s$invert_scale)          # was persisted as null
+  expect_null(s$time_unit)
+  expect_equal(s$default_tol, 5)
+  expect_identical(s$hmdb_adducts_pos, character())   # JSON [] reads back as list()
+  expect_identical(s$hmdb_adducts_neg, "M-H")         # length 1 stays a vector
+})
+
+test_that("pos_num falls back on NULL, NA, zero and non-numbers", {
+  expect_equal(pos_num(NULL, 8), 8)
+  expect_equal(pos_num(NA_real_, 8), 8)
+  expect_equal(pos_num(0, 8), 8)
+  expect_equal(pos_num("5", 8), 8)
+  expect_equal(pos_num(c(1, 2), 8), 8)
+  expect_equal(pos_num(6, 8), 6)
+})

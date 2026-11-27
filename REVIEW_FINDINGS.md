@@ -18,7 +18,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 - [x] **B3** EIC targets are keyed only by label: duplicate labels merge into one
   zig-zag trace and make the join many-to-many. `make.unique()` the labels and
   require a finite tolerance. `R/mod_plot_eic.R:169`. Votes 4/0/0.
-- [ ] **B4** NA from an emptied numeric input: `ggsave(dpi = NA)` errors (download
+- [x] **B4** NA from an emptied numeric input: `ggsave(dpi = NA)` errors (download
   fails), `width = NA` saves at the 7×5 device default (≠ preview), NA settings
   persist as `"NA"`/`null`, NA `default_tol` reaches new EIC targets. One shared
   positive-number helper; guard the settings observers; type-check on load.

@@ -81,3 +81,17 @@ test_that("preview_dims falls back on missing sizes instead of erroring", {
   expect_identical(preview_dims(8, 5, box = c(420, 420)), def)
   expect_equal(preview_dims(4, 4, box = c(300, 200)), list(w = 200, h = 200))
 })
+
+test_that("save_gg survives emptied size/DPI fields", {
+  # An emptied numericInput sends NA: ggsave(dpi = NA) errored and width = NA
+  # silently saved at the device default instead of the previewed 8 x 5.
+  gg <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_line()
+  skip_if_not_installed("png")
+  f <- withr::local_tempfile(fileext = ".png")
+  expect_no_error(save_gg(gg, f, list(export_format = "png", export_width = NA,
+                                      export_height = NA, export_units = "in",
+                                      export_dpi = NA)))
+  d <- dim(png::readPNG(f))
+  expect_equal(d[2] / d[1], 8 / 5, tolerance = 0.01)
+})

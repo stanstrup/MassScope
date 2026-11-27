@@ -12,6 +12,15 @@ has_pandoc <- function() {
     (requireNamespace("rmarkdown", quietly = TRUE) && rmarkdown::pandoc_available())
 }
 
+#' Is `v` one finite number above zero? An emptied numericInput sends NA (and a
+#' not-yet-bound one NULL), neither of which `%||%` catches.
+#' @noRd
+is_pos_num <- function(v) length(v) == 1 && is.numeric(v) && isTRUE(is.finite(v) && v > 0)
+
+#' `v` when it is a usable positive number, else `default`.
+#' @noRd
+pos_num <- function(v, default) if (is_pos_num(v)) v else default
+
 #' Save a ggplot to file using the user's export settings.
 #' @param gg a ggplot object
 #' @param file destination path
@@ -33,12 +42,14 @@ save_gg <- function(gg, file, settings) {
   }
   args <- list(
     filename = file, plot = gg,
-    width = settings$export_width %||% 8,
-    height = settings$export_height %||% 5,
+    # The same fallback size as the preview (preview_dims), so an emptied field
+    # can't save a file shaped differently from what was shown.
+    width = pos_num(settings$export_width, 8),
+    height = pos_num(settings$export_height, 5),
     units = settings$export_units %||% "in"
   )
   if (fmt == "png") {
-    args$device <- "png"; args$dpi <- settings$export_dpi %||% 300
+    args$device <- "png"; args$dpi <- pos_num(settings$export_dpi, 300)
   } else if (fmt == "pdf") {
     args$device <- cairo_pdf
   } else if (fmt == "svg") {

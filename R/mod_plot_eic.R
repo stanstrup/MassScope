@@ -159,7 +159,7 @@ mod_plot_eic_server <- function(id, rv, dataset, meta, data_key) {
     observeEvent(input$parse, {
       vals <- suppressWarnings(as.numeric(trimws(strsplit(input$paste, "[,\n;]+")[[1]])))
       vals <- vals[is.finite(vals)]
-      req(length(vals) > 0)
+      req(length(vals) > 0, is_pos_num(input$paste_tol))
       rv$eic_targets <- bind_rows(rv$eic_targets,
         new_eic_target(vals, tol = input$paste_tol, unit = input$paste_unit))
       updateTextAreaInput(session, "paste", value = "")

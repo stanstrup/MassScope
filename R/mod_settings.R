@@ -109,9 +109,14 @@ mod_settings_server <- function(id, rv) {
     observeEvent(input$qual_palette,  rv$settings$qual_palette  <- input$qual_palette)
     observeEvent(input$seq_palette,   rv$settings$seq_palette   <- input$seq_palette)
     observeEvent(input$invert_scale,  rv$settings$invert_scale  <- input$invert_scale)
-    observeEvent(input$default_tol,      rv$settings$default_tol      <- input$default_tol)
+    # Numeric settings: an emptied field sends NA, which must not replace the
+    # last good value (it would persist as "NA" and reach ggsave / new targets).
+    for (k in c("default_tol", "hmdb_tol", "export_width", "export_height", "export_dpi"))
+      local({
+        k <- k
+        observeEvent(input[[k]], if (is_pos_num(input[[k]])) rv$settings[[k]] <- input[[k]])
+      })
     observeEvent(input$default_tol_unit, rv$settings$default_tol_unit <- input$default_tol_unit)
-    observeEvent(input$hmdb_tol,      rv$settings$hmdb_tol      <- input$hmdb_tol)
     observeEvent(input$hmdb_tol_unit, rv$settings$hmdb_tol_unit <- input$hmdb_tol_unit)
     # ignoreNULL = FALSE: clearing every adduct is a real choice (falls back to
     # the defaults at search time), not "no event".
@@ -120,10 +125,7 @@ mod_settings_server <- function(id, rv) {
     observeEvent(input$hmdb_adducts_neg, ignoreNULL = FALSE,
                  rv$settings$hmdb_adducts_neg <- as.character(input$hmdb_adducts_neg))
     observeEvent(input$export_format, rv$settings$export_format <- input$export_format)
-    observeEvent(input$export_width,  rv$settings$export_width  <- input$export_width)
-    observeEvent(input$export_height, rv$settings$export_height <- input$export_height)
     observeEvent(input$export_units,  rv$settings$export_units  <- input$export_units)
-    observeEvent(input$export_dpi,    rv$settings$export_dpi    <- input$export_dpi)
 
     # Resize the mirai pool when the user changes the daemon count (debounced).
     daemon_n <- reactive(input$daemons) %>% debounce(800)

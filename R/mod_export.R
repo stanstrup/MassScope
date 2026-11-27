@@ -15,9 +15,8 @@ mod_export_ui <- function(id, label = "Save") {
 preview_dims <- function(w, h, box = c(420, 420)) {
   # The debounce evaluates this once before the dialog's inputs exist, so w/h
   # can be NULL; an empty numeric field arrives as NA. Neither is a size.
-  ok <- function(v) length(v) == 1 && is.numeric(v) && is.finite(v) && v > 0
-  if (!ok(w) || !ok(h)) { w <- 8; h <- 5 }
-  if (!ok(box[1]) || !ok(box[2])) box <- c(420, 420)
+  if (!is_pos_num(w) || !is_pos_num(h)) { w <- 8; h <- 5 }
+  if (!is_pos_num(box[1]) || !is_pos_num(box[2])) box <- c(420, 420)
   r <- h / w
   dw <- box[1]; dh <- dw * r
   if (dh > box[2]) { dh <- box[2]; dw <- dh / r }

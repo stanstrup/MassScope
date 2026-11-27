@@ -3,12 +3,30 @@
 # app is launched from and never lands in the project tree. Only user
 # preferences are saved — not transient/session state.
 
-# Fields persisted (a stable allow-list; anything else in settings is ignored).
-.PERSISTED_SETTINGS <- c(
-  "time_unit", "qual_palette", "seq_palette", "invert_scale",
-  "default_tol", "default_tol_unit", "daemons",
-  "hmdb_tol", "hmdb_tol_unit", "hmdb_adducts_pos", "hmdb_adducts_neg",
-  "export_format", "export_width", "export_height", "export_units", "export_dpi")
+# Fields persisted (a stable allow-list; anything else in settings is ignored),
+# with the shape each must have: "chr" one string, "chrs" a character vector
+# (possibly empty), "lgl" TRUE/FALSE, "num" one finite number.
+.SETTING_KINDS <- c(
+  time_unit = "chr", qual_palette = "chr", seq_palette = "chr", invert_scale = "lgl",
+  default_tol = "num", default_tol_unit = "chr", daemons = "num",
+  hmdb_tol = "num", hmdb_tol_unit = "chr",
+  hmdb_adducts_pos = "chrs", hmdb_adducts_neg = "chrs",
+  export_format = "chr", export_width = "num", export_height = "num",
+  export_units = "chr", export_dpi = "num")
+.PERSISTED_SETTINGS <- names(.SETTING_KINDS)
+
+#' Coerce a value read back from JSON to its setting's shape, or NULL when it
+#' doesn't fit (a cleared numeric saved as "NA", a logical NA saved as null, a
+#' hand-edited file). An empty JSON array reads back as list(), hence "chrs".
+#' @noRd
+clean_setting <- function(v, kind) {
+  switch(kind,
+    chrs = if (is.null(v) || (is.list(v) && !length(v))) character()
+           else if (is.character(v)) v[!is.na(v)],
+    chr  = if (is.character(v) && length(v) == 1 && !is.na(v)) v,
+    lgl  = if (is.logical(v) && length(v) == 1 && !is.na(v)) v,
+    num  = if (is.numeric(v) && length(v) == 1 && is.finite(v)) v)
+}
 
 #' Path to the persisted settings file (per-user config dir).
 #' @importFrom tools R_user_dir
@@ -36,7 +54,9 @@ load_settings <- function() {
   out <- tryCatch(read_json(f, simplifyVector = TRUE),
                   error = function(e) list())
   if (!is.list(out)) return(list())
-  out[intersect(names(out), .PERSISTED_SETTINGS)]
+  out <- out[intersect(names(out), .PERSISTED_SETTINGS)]
+  out <- Map(clean_setting, out, .SETTING_KINDS[names(out)])
+  Filter(Negate(is.null), out)
 }
 
 #' Write the persisted subset of `settings` (a plain list, e.g. from

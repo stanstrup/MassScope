@@ -50,7 +50,8 @@ Suggests:
     svglite,
     rmarkdown,
     msdata,
-    faahKO
+    faahKO,
+    png
 Remotes:
     stanstrup/commonMZ
 biocViews:
