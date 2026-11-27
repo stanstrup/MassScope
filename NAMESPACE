@@ -77,7 +77,6 @@ importFrom(plotly,
   plotlyOutput,
   renderPlotly
 )
-importFrom(purrr,possibly)
 importFrom(qs2,
   qs_read,
   qs_save
@@ -88,10 +87,7 @@ importFrom(stats,
   quantile,
   setNames
 )
-importFrom(tibble,
-  as_tibble,
-  tibble
-)
+importFrom(tibble,tibble)
 importFrom(tools,R_user_dir)
 importFrom(utils,
   globalVariables,

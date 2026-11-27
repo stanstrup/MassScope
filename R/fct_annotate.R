@@ -60,7 +60,6 @@ centroid_peaks <- function(df, rel_floor = 0, mz_gap = 0.01) {
 #' the uncharged species (already includes the proton/electron mass), so
 #'   m/z = (nmol * M + massdiff) / abs(charge).
 #' @param mode "pos" or "neg".
-#' @importFrom tibble as_tibble
 #' @noRd
 adduct_rules <- function(mode = c("pos", "neg")) {
   mode <- match.arg(mode)
@@ -232,7 +231,7 @@ annotate_anchor <- function(spec_df, anchor_mz, adduct = NULL, mode = c("pos", "
 #' coincidences "explain" spurious masses), so we always reduce to the `max_peaks`
 #' most intense centroids first — independent of the intensity floor, which the
 #' user may have set to 0 for the other modes.
-#' @importFrom tibble as_tibble tibble
+#' @importFrom tibble tibble
 #' @noRd
 rank_anchors <- function(spec_df, mode = c("pos", "neg"), ppm = 5,
                          top_n = 5L, rel_floor = 0.01, max_peaks = 200L) {

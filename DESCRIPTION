@@ -25,7 +25,6 @@ Imports:
     magrittr,
     dplyr,
     tibble,
-    purrr,
     rlang,
     cachem,
     qs2,

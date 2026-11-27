@@ -89,7 +89,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 
 - [x] **H1** Delete unused `MS_FILE_EXTS`; remove the cache tmp file when
   `qs_save` fails (`R/fct_cache.R:57`). Votes 4/0/0.
-- [ ] **H2** Drop purrr (one `possibly()`); drop the unused
+- [x] **H2** Drop purrr (one `possibly()`); drop the unused
   `importFrom(tibble, as_tibble)`. Votes 4/0/0 (low value).
 - [ ] **H3** Delete `tests/testthat/_problems/` and git-ignore it; tests for the
   settings round-trip (empty vectors, NA), filter startup identity (B5), time-unit
