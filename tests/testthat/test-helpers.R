@@ -177,3 +177,15 @@ test_that("with_plotly_aes mutes only the plotly-only unknown aesthetics", {
   # and non-aesthetic warnings pass straight through
   expect_warning(with_plotly_aes(warning("something else")), "something else")
 })
+
+test_that("with_plotly_aes also mutes the cli-coloured warning (RStudio console)", {
+  # In a colour-capable console ggplot2's message carries ANSI codes around the
+  # aesthetic name, which used to defeat the match.
+  withr::local_options(cli.num_colors = 256)
+  d <- data.frame(x = 1:3, y = 1:3, t = letters[1:3])
+  expect_silent(with_plotly_aes(
+    ggplot2::geom_point(data = d, ggplot2::aes(x = x, y = y, text = t))))
+  expect_warning(with_plotly_aes(
+    ggplot2::geom_line(data = d, ggplot2::aes(x = x, y = y, txt = t))),
+    "unknown aesthetics")
+})

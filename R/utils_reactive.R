@@ -157,7 +157,10 @@ finalize_plotly <- function(gg, source, keep_zoom) {
 #' @noRd
 with_plotly_aes <- function(expr) {
   withCallingHandlers(expr, warning = function(w) {
-    m <- conditionMessage(w)
+    # ggplot2 formats this with cli, which adds ANSI styling in a colour-capable
+    # console (RStudio): "\033[1m\033[22mIgnoring ...: \033[32mtext\033[39m".
+    # Strip it, or neither the prefix nor the aesthetic name matches.
+    m <- gsub("\033\\[[0-9;]*m", "", conditionMessage(w))
     if (!grepl("^Ignoring unknown aesthetics", m)) return()
     named <- strsplit(sub("^[^:]*:", "", m), ",| and ")[[1]]
     named <- trimws(named); named <- named[nzchar(named)]
