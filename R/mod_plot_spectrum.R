@@ -464,7 +464,8 @@ mod_plot_spectrum_server <- function(id, rv, included) {
     # --- isotope-pattern mode (fine structure via enviPat / Rdisop) -----------
     # Neutral mass from the anchor ion + adduct (same inversion as manual mode).
     iso_neutral <- reactive({
-      req(identical(input$ann_mode, "iso"), is.finite(input$anchor_mz),
+      req(isTRUE(input$annotate), identical(input$ann_mode, "iso"),
+          is.finite(input$anchor_mz),
           isTRUE(input$ann_adduct %in% anchor_adducts(input$ann_pol)))
       rule <- anchor_adduct_rules(input$ann_pol)
       rule <- rule[rule$name == input$ann_adduct, , drop = FALSE]
@@ -502,8 +503,8 @@ mod_plot_spectrum_server <- function(id, rv, included) {
                                scrollX = TRUE, scrollY = "220px", scrollCollapse = TRUE)) %>%
         DT::formatRound("mass", 4) %>% DT::formatRound("ppm", 2)
     })
-    # Compute even while the iso panel is hidden so the table is ready the instant
-    # the user switches into isotope mode (the candidate list is tiny — ≤25 rows).
+    # Render while hidden so the DT is laid out when the iso panel appears. This
+    # computes nothing early: iso_neutral() requires annotation on and iso mode.
     outputOptions(output, "iso_cands", suspendWhenHidden = FALSE)
     # Estimate resolving power from the raw profile peak at the anchor.
     observeEvent(input$iso_res_est, {

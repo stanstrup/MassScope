@@ -66,7 +66,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 - [x] **E6** `difference_network` is an O(n²) loop with a tibble per hit (2.1 s at
   300 peaks). Index intensities by i,j; vectorise. `R/fct_annotate.R:290`.
   Votes 4/0/0 (low priority).
-- [ ] **E7** `iso_neutral` runs Rdisop with annotation unticked
+- [x] **E7** `iso_neutral` runs Rdisop with annotation unticked
   (`suspendWhenHidden = FALSE`); misleading comment. `R/mod_plot_spectrum.R:447,486`.
   Votes 4/0/0.
 
