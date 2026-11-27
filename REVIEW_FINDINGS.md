@@ -11,11 +11,11 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
   empty (EIC rt window outside the data, no spectra at the level); the EIC
   `left_join(by = "target")` then errors. Return a typed empty tibble.
   `R/fct_extract.R:78`. Votes 4/0/0 (reproduced on faahKO).
-- [ ] **B2** The EIC builds ONE rt range from all targets' windows: a target with
+- [x] **B2** The EIC builds ONE rt range from all targets' windows: a target with
   only `rt_min` gives `c(300, -Inf)`, and targets without a window are clipped to
   the others'. Pass a per-target rt matrix (NA ends open per row) and drop the
   post-extraction clip/join. `R/mod_plot_eic.R:184-202`. Votes 4/0/0 (reproduced).
-- [ ] **B3** EIC targets are keyed only by label: duplicate labels merge into one
+- [x] **B3** EIC targets are keyed only by label: duplicate labels merge into one
   zig-zag trace and make the join many-to-many. `make.unique()` the labels and
   require a finite tolerance. `R/mod_plot_eic.R:169`. Votes 4/0/0.
 - [ ] **B4** NA from an emptied numeric input: `ggsave(dpi = NA)` errors (download

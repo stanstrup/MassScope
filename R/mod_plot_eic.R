@@ -168,13 +168,18 @@ mod_plot_eic_server <- function(id, rv, dataset, meta, data_key) {
     # --- Extraction -------------------------------------------------------
     enabled_targets <- reactive({
       tg <- rv$eic_targets
-      tg[isTRUE_vec(tg$enabled) & is.finite(tg$mz), , drop = FALSE]
+      tg <- tg[isTRUE_vec(tg$enabled) & is.finite(tg$mz) &
+                 is.finite(tg$tol) & tg$tol >= 0, , drop = FALSE]
+      # The label is the trace key: two targets sharing one (the same m/z pasted
+      # twice, or an edit) would be drawn as a single zig-zag line.
+      tg$label <- make.unique(as.character(tg$label), sep = " #")
+      tg
     })
 
     eic_df <- reactive({
       x <- dataset(); req(x)
       tg <- enabled_targets()
-      validate(need(nrow(tg) > 0, "Add at least one enabled target with a valid m/z."))
+      validate(need(nrow(tg) > 0, "Add at least one enabled target with a valid m/z and tolerance."))
       # See TIC: a filter matching no spectra would make chromatogram() error.
       validate(need(length(MsExperiment::spectra(x)) > 0,
                     "No spectra match the current filters."))
@@ -182,25 +187,17 @@ mod_plot_eic_server <- function(id, rv, dataset, meta, data_key) {
       tol_da <- ifelse(tg$unit == "ppm", tg$mz * tg$tol / 1e6, tg$tol)
       mzmat <- cbind(tg$mz - tol_da, tg$mz + tol_da)
       # rt window cells are in the display unit -> seconds for extraction
+      # One rt window PER TARGET (a row per mz row), an unset end left open. A
+      # single shared range clipped targets without a window to the others' and
+      # became c(min, -Inf) when only a start was typed.
       rmin_s <- rt_to_sec(tg$rt_min, unit); rmax_s <- rt_to_sec(tg$rt_max, unit)
-      rtr <- numeric()
-      if (any(is.finite(rmin_s)) || any(is.finite(rmax_s)))
-        rtr <- c(min(rmin_s, na.rm = TRUE), max(rmax_s, na.rm = TRUE))
+      rtmat <- cbind(ifelse(is.finite(rmin_s), rmin_s, -Inf),
+                     ifelse(is.finite(rmax_s), rmax_s, Inf))
       ms <- chrom_ms_level(rv$filter)
       withProgress(message = "Extracting EICs\u2026", value = 0.5, {
-        chr <- if (length(rtr) == 2) xcms::chromatogram(x, mz = mzmat, rt = rtr, msLevel = ms)
-               else xcms::chromatogram(x, mz = mzmat, msLevel = ms)
-        df <- add_scan_numbers(chrom_to_df(chr, meta(), labels = tg$label), meta())
+        chr <- xcms::chromatogram(x, mz = mzmat, rt = rtmat, msLevel = ms)
+        add_scan_numbers(chrom_to_df(chr, meta(), labels = tg$label), meta())
       })
-      # per-target rt clipping (display unit -> seconds)
-      if (any(is.finite(rmin_s)) || any(is.finite(rmax_s))) {
-        lims <- tibble(target = tg$label, rmin = rmin_s, rmax = rmax_s)
-        df <- left_join(df, lims, by = "target")
-        df <- df[(is.na(df$rmin) | df$rt >= df$rmin) &
-                 (is.na(df$rmax) | df$rt <= df$rmax), ]
-        df$rmin <- NULL; df$rmax <- NULL
-      }
-      df
     }) %>% bindCache(data_key(), enabled_targets(), rv$settings$time_unit)
 
     plot_gg <- reactive({
