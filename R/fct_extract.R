@@ -75,6 +75,12 @@ chrom_to_df <- function(chr, meta, labels = NULL) {
       target = labels[i], sample_id = meta$id[j], sample_name = meta$name[j],
       sample_group = meta$sample_group[j], rt = rt, intensity = int)
   }
+  # No cell had data (rt window outside the run, no spectra at the level):
+  # bind_rows(list()) would give a column-less tibble that breaks every caller.
+  if (!k) return(tibble(target = character(), sample_id = meta$id[0],
+                        sample_name = meta$name[0],
+                        sample_group = meta$sample_group[0],
+                        rt = numeric(), intensity = numeric()))
   out <- bind_rows(pieces[seq_len(k)])
   out$intensity[is.na(out$intensity)] <- 0
   out

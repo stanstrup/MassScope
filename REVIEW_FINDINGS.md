@@ -7,7 +7,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 
 ## Bugs
 
-- [ ] **B1** `chrom_to_df` returns a 0×1 tibble when every chromatogram cell is
+- [x] **B1** `chrom_to_df` returns a 0×1 tibble when every chromatogram cell is
   empty (EIC rt window outside the data, no spectra at the level); the EIC
   `left_join(by = "target")` then errors. Return a typed empty tibble.
   `R/fct_extract.R:78`. Votes 4/0/0 (reproduced on faahKO).
