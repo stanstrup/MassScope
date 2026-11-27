@@ -70,3 +70,14 @@ test_that("spectrum_table exports the drawn spectrum; table_tsv is tab-separated
   expect_identical(tsv[1], "file\tscan\trt_min\tmz\tintensity\tmode")
   expect_identical(strsplit(tsv[2], "\t")[[1]][4], "100.12345")
 })
+
+test_that("preview_dims falls back on missing sizes instead of erroring", {
+  # The Save dialog's debounced preview size is computed once before its
+  # Width/Height inputs exist (NULL); an emptied field arrives as NA.
+  def <- preview_dims(8, 5)
+  expect_identical(preview_dims(NULL, NULL), def)
+  expect_identical(preview_dims(NA, 5), def)
+  expect_identical(preview_dims(8, 5, box = c(NA, NA)), def)
+  expect_identical(preview_dims(8, 5, box = c(420, 420)), def)
+  expect_equal(preview_dims(4, 4, box = c(300, 200)), list(w = 200, h = 200))
+})

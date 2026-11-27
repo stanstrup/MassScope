@@ -13,7 +13,11 @@ mod_export_ui <- function(id, label = "Save") {
 # display box, preserving aspect. Returns integer px so the preview reads as the
 # real output would: change Width/Height and the preview re-proportions exactly.
 preview_dims <- function(w, h, box = c(420, 420)) {
-  if (!is.finite(w) || !is.finite(h) || w <= 0 || h <= 0) { w <- 8; h <- 5 }
+  # The debounce evaluates this once before the dialog's inputs exist, so w/h
+  # can be NULL; an empty numeric field arrives as NA. Neither is a size.
+  ok <- function(v) length(v) == 1 && is.numeric(v) && is.finite(v) && v > 0
+  if (!ok(w) || !ok(h)) { w <- 8; h <- 5 }
+  if (!ok(box[1]) || !ok(box[2])) box <- c(420, 420)
   r <- h / w
   dw <- box[1]; dh <- dw * r
   if (dh > box[2]) { dh <- box[2]; dw <- dh / r }
