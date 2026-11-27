@@ -41,6 +41,12 @@ mod_plot_spectrum_ui <- function(id) {
         helpText("Single view uses the file you clicked (or the first included). ",
                  "Facet / Stacked compare all included files at the rt. MS level ",
                  "and intensity / spectrum-id filters come from the global filter."),
+        # What a click on a peak does. "annotation anchor" needs annotation on
+        # (single view); otherwise such a click falls back to the EIC list.
+        radioButtons(ns("click_action"), "Click on a peak", inline = TRUE,
+                     c("\u2192 EIC list" = "eic", "\u2192 search HMDB" = "hmdb",
+                       "\u2192 annotation anchor" = "anchor")),
+        hmdb_click_script(),
 
         # --- peak picking (data processing; profile scans) -----------------
         # The "Raw + centroids overlay" mode (in the dropdown) draws the picked
@@ -62,8 +68,6 @@ mod_plot_spectrum_ui <- function(id) {
                         value = FALSE),
           conditionalPanel(
             single(sprintf("input['%s'] == true", ns("annotate"))),
-            radioButtons(ns("click_action"), "Click on a peak", inline = TRUE,
-                         c("\u2192 EIC list" = "eic", "\u2192 set anchor" = "anchor")),
             selectInput(ns("ann_mode"), "Mode",
                         c("Manual anchor" = "manual", "Auto-suggest (findMAIN)" = "auto",
                           "Difference network" = "diff",
@@ -642,17 +646,33 @@ mod_plot_spectrum_server <- function(id, rv, included) {
       # ggplotly drops geom_text `angle`, so rotate the label traces here. Build
       # first: trace `mode` ("text") is only populated after plotly_build().
       if (isTRUE(input$annotate)) p <- text_traces_vertical(plotly::plotly_build(p))
-      p
+      arm_hmdb_on_click(p, session$ns("click_action"))
     })
 
     # Click a peak -> set the annotation anchor, or add its m/z to the EIC list.
     # Use the clicked m/z exactly as reported (plotly returns the nearest data
     # point). We deliberately do NOT snap to a nearby apex: on a profile trace the
     # user gets exactly the sample they clicked, not some louder neighbour.
-    click <- reactive(event_data("plotly_click", source = "spec"))
+    # priority "event": a repeat click on the same peak must fire again (the HMDB
+    # action has already opened a blank tab that needs its URL).
+    click <- reactive(event_data("plotly_click", source = "spec", priority = "event"))
     observeEvent(click(), {
       ev <- click(); req(ev, !is.null(ev$x))
       mz <- ev$x
+      if (identical(input$click_action, "hmdb")) {
+        # The browser already opened a blank tab during the click (a tab opened
+        # later, from this server round trip, would be blocked as a pop-up);
+        # send it the search URL. Ion mode follows the displayed scan (ann_pol).
+        mode <- if (identical(input$ann_pol, "neg")) "neg" else "pos"
+        ann <- if (isTRUE(input$annotate) && identical(input$layout, "single"))
+                 tryCatch(ann_result()$table, error = function(e) NULL)
+        url <- hmdb_peak_url(mz, mode, ann,
+                             adducts = rv$settings[[paste0("hmdb_adducts_", mode)]],
+                             tol = rv$settings$hmdb_tol %||% 5,
+                             unit = rv$settings$hmdb_tol_unit %||% "ppm")
+        session$sendCustomMessage("massscope-open-url", list(url = url))
+        return()
+      }
       if (isTRUE(input$annotate) && identical(input$click_action, "anchor") &&
           identical(input$layout, "single")) {
         updateNumericInput(session, "anchor_mz", value = round(mz, 4))

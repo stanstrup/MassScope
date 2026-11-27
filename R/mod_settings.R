@@ -33,6 +33,21 @@ mod_settings_ui <- function(id) {
         selectInput(ns("default_tol_unit"), "Unit", choices = c("ppm", "Da"))
       ),
       hr(),
+      helpText(strong("HMDB search"), " \u2014 a Spectrum peak click set to ",
+               "\u201csearch HMDB\u201d opens hmdb.ca with these. An annotated peak ",
+               "searches its own adduct instead."),
+      layout_columns(
+        col_widths = c(6, 6),
+        numericInput(ns("hmdb_tol"), "\u00b1 tolerance", value = 5, min = 0),
+        selectInput(ns("hmdb_tol_unit"), "Unit", choices = c("ppm", "Da"))
+      ),
+      selectizeInput(ns("hmdb_adducts_pos"), "Adducts, positive mode",
+                     choices = HMDB_ADDUCTS$pos, selected = HMDB_DEFAULT_ADDUCTS$pos,
+                     multiple = TRUE),
+      selectizeInput(ns("hmdb_adducts_neg"), "Adducts, negative mode",
+                     choices = HMDB_ADDUCTS$neg, selected = HMDB_DEFAULT_ADDUCTS$neg,
+                     multiple = TRUE),
+      hr(),
       selectInput(ns("export_format"), "Default export format",
                   choices = c("png", "svg", "pdf", "rds")),
       layout_columns(
@@ -61,6 +76,10 @@ mod_settings_server <- function(id, rv) {
       if (!is.null(saved$invert_scale)) updateCheckboxInput(session, "invert_scale", value = saved$invert_scale)
       if (!is.null(saved$default_tol))      updateNumericInput(session, "default_tol", value = saved$default_tol)
       if (!is.null(saved$default_tol_unit)) updateSelectInput(session, "default_tol_unit", selected = saved$default_tol_unit)
+      if (!is.null(saved$hmdb_tol))      updateNumericInput(session, "hmdb_tol", value = saved$hmdb_tol)
+      if (!is.null(saved$hmdb_tol_unit)) updateSelectInput(session, "hmdb_tol_unit", selected = saved$hmdb_tol_unit)
+      if (!is.null(saved$hmdb_adducts_pos)) updateSelectizeInput(session, "hmdb_adducts_pos", selected = saved$hmdb_adducts_pos)
+      if (!is.null(saved$hmdb_adducts_neg)) updateSelectizeInput(session, "hmdb_adducts_neg", selected = saved$hmdb_adducts_neg)
       if (!is.null(saved$daemons))      updateSliderInput(session, "daemons", value = saved$daemons)
       if (!is.null(saved$export_format))updateSelectInput(session, "export_format", selected = saved$export_format)
       if (!is.null(saved$export_width)) updateNumericInput(session, "export_width", value = saved$export_width)
@@ -78,6 +97,14 @@ mod_settings_server <- function(id, rv) {
     observeEvent(input$invert_scale,  rv$settings$invert_scale  <- input$invert_scale)
     observeEvent(input$default_tol,      rv$settings$default_tol      <- input$default_tol)
     observeEvent(input$default_tol_unit, rv$settings$default_tol_unit <- input$default_tol_unit)
+    observeEvent(input$hmdb_tol,      rv$settings$hmdb_tol      <- input$hmdb_tol)
+    observeEvent(input$hmdb_tol_unit, rv$settings$hmdb_tol_unit <- input$hmdb_tol_unit)
+    # ignoreNULL = FALSE: clearing every adduct is a real choice (falls back to
+    # the defaults at search time), not "no event".
+    observeEvent(input$hmdb_adducts_pos, ignoreNULL = FALSE,
+                 rv$settings$hmdb_adducts_pos <- as.character(input$hmdb_adducts_pos))
+    observeEvent(input$hmdb_adducts_neg, ignoreNULL = FALSE,
+                 rv$settings$hmdb_adducts_neg <- as.character(input$hmdb_adducts_neg))
     observeEvent(input$export_format, rv$settings$export_format <- input$export_format)
     observeEvent(input$export_width,  rv$settings$export_width  <- input$export_width)
     observeEvent(input$export_height, rv$settings$export_height <- input$export_height)

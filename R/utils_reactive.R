@@ -54,6 +54,12 @@ make_rv <- function() {
       invert_scale = TRUE,
       default_tol      = 10,         # default EIC tolerance for new targets
       default_tol_unit = "ppm",      # "ppm" | "Da"
+      # HMDB search from a spectrum peak: its own (typically narrower) tolerance
+      # and the adducts searched for an unannotated peak, per ion mode.
+      hmdb_tol      = 5,
+      hmdb_tol_unit = "ppm",
+      hmdb_adducts_pos = HMDB_DEFAULT_ADDUCTS$pos,
+      hmdb_adducts_neg = HMDB_DEFAULT_ADDUCTS$neg,
       daemons      = max(1L, detectCores() - 1L),
       export_format = "png",
       export_width  = 8,

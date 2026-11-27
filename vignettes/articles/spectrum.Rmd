@@ -37,8 +37,9 @@ If the file is profile-mode, this view shows the scan **raw** by default (the
 **Peak picking** control in this tab's panel, default *Raw*). It is drawn as a
 continuous **line** — which is what profile data actually is, rather than a stick
 per detector sample — and the title is marked *profile*. A click returns exactly the
-*m/z* you clicked (the nearest raw sample), which it sends to the EIC list or uses
-as the annotation anchor. Set **Peak picking** to *Centroid profile scans* for a
+*m/z* you clicked (the nearest raw sample), which it sends to the EIC list, searches
+in HMDB or uses as
+the annotation anchor. Set **Peak picking** to *Centroid profile scans* for a
 conventional stick plot (the S/N, half-window and *m/z*-accuracy settings then
 appear), or **Raw + centroids overlay** to draw the picked centroids on top of the
 raw line — then a click can land on the true centroid. **Show data points** overlays
@@ -55,7 +56,28 @@ Annotation works whether you view the spectrum raw or centroided — see
 **Click a peak** to add its *m/z* to the [EIC](eic.html) target list (the default
 click action). Click the ions you want, then open the EIC tab to extract their
 chromatograms across files. (When annotation is on you can switch the click action
-to *set anchor* instead — see below.)
+to *annotation anchor* instead — see below.)
+
+## Search HMDB for a peak
+
+Set **Click on a peak** to **→ search HMDB** and a click opens the
+[HMDB LC-MS search](https://hmdb.ca/spectra/ms/search) for that *m/z* in a new
+browser tab. The search uses:
+
+- the **ion mode** of the scan on screen (the annotation's *Ion mode*, which follows
+  the scan's polarity);
+- the **adducts** set for that mode in **Settings → HMDB search** (default
+  `M+H`, `M+Na`, `M+NH4` positive; `M-H`, `M+Cl`, `M+FA-H` negative);
+- the **tolerance** from the same settings (default 5 ppm), kept separate from the
+  EIC tolerance because a database search is usually narrower.
+
+When annotation is on and the clicked peak is labelled as an adduct, only that
+adduct is searched (e.g. a peak labelled `[M+Na]+` searches `M+Na`). If HMDB has no
+such adduct (an in-source fragment, say), the implied neutral mass is searched in
+HMDB's *neutral* mode instead.
+
+The search runs in your browser, so HMDB's own page and results appear there;
+nothing is sent through MassScope.
 
 ## Scan list
 
@@ -77,7 +99,7 @@ package; the ion mode defaults to the file's polarity.
 There are three modes:
 
 - **Manual anchor** — pick the peak you believe is a known ion (default `[M+H]+` /
-  `[M-H]-`, selectable). Switch *Click on a peak* to **→ set anchor** and click the
+  `[M-H]-`, selectable). Switch *Click on a peak* to **→ annotation anchor** and click the
   peak, or type its *m/z*. The neutral mass is derived from it and every adduct and
   in-source fragment (from [commonMZ](https://github.com/stanstrup/commonMZ); the
   `[M+H-H2O]+` water-loss ladder, etc. — toggle with **In-source fragments**) is

@@ -55,6 +55,7 @@ importFrom(grDevices,
   colorRampPalette,
   svg
 )
+importFrom(htmlwidgets,onRender)
 importFrom(jsonlite,
   read_json,
   write_json

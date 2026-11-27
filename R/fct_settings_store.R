@@ -7,6 +7,7 @@
 .PERSISTED_SETTINGS <- c(
   "time_unit", "qual_palette", "seq_palette", "invert_scale",
   "default_tol", "default_tol_unit", "daemons",
+  "hmdb_tol", "hmdb_tol_unit", "hmdb_adducts_pos", "hmdb_adducts_neg",
   "export_format", "export_width", "export_height", "export_units", "export_dpi")
 
 #' Path to the persisted settings file (per-user config dir).
