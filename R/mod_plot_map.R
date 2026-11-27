@@ -113,9 +113,12 @@ mod_plot_map_server <- function(id, rv, included) {
                          d$mz, d$rt_disp, unit, ifelse(is.na(d$scan), "?", d$scan),
                          d$intensity)
           t <- as.vector(rbind(txt, txt, NA_character_))
+          # `key` carries each segment's file into the click event, as on the
+          # ggplot views: one map can hold several files.
+          k <- as.vector(rbind(d$sample_id, d$sample_id, NA_character_))
           p <- add_trace(p, x = x, y = y, type = "scattergl", mode = "lines",
                          line = list(color = cols[g], width = input$psize),
-                         text = t, hoverinfo = "text", showlegend = FALSE)
+                         text = t, key = k, hoverinfo = "text", showlegend = FALSE)
         }
         p <- add_trace(p, x = rep(pk$rt_disp[1], 2), y = rep(pk$mz[1], 2),
                        type = "scattergl", mode = "markers",
@@ -159,14 +162,8 @@ mod_plot_map_server <- function(id, rv, included) {
       })  # withProgress
     })
 
-    # Click a 2D-map point -> spectrum at that rt (first included file).
-    click <- reactive(event_data("plotly_click", source = "map"))
-    observeEvent(click(), {
-      ev <- click(); req(ev, !is.null(ev$x))
-      inc <- included(); req(nrow(inc) > 0)
-      rv$selection <- list(plot = "map", file_id = inc$id[1],
-                           rt = rt_to_sec(ev$x, rv$settings$time_unit), mz = ev$y)
-    })
+    # Click a 2D-map point -> that file's spectrum at that rt (file from `key`).
+    wire_selection("map", "map", rv, mz_from = function(ev) ev$y)
 
     export_gg <- reactive({
       req(input$mode == "map", input$plot > 0)
@@ -176,6 +173,7 @@ mod_plot_map_server <- function(id, rv, included) {
         pk <- pk[order(-pk$intensity)[seq_len(MAP_LINE_CAP)], , drop = FALSE]
       pk$rt_disp <- rt_to_disp(pk$rt, unit)
       cmax <- quantile(pk$intensity, input$contrast / 100, names = FALSE)
+      if (!is.finite(cmax) || cmax <= 0) cmax <- max(pk$intensity)
       ggplot(pk, aes(rt_disp, mz, color = pmin(intensity, cmax))) +
         geom_point(size = input$psize * 0.4) +
         scale_color_gradientn(colours = brewer_seq(rv$settings$seq_palette,

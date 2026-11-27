@@ -30,7 +30,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 - [x] **B6** Switching the time unit re-seeds the rt filter boxes with the old
   number under the new unit label (5 min shown as "5" sec). Seed from
   `rt_to_disp(rv$filter$rt_*)`. `R/mod_filter.R:429-475`. Votes 3/1/0 (reproduced).
-- [ ] **B7** MS map click always opens the first included file (`inc$id[1]`).
+- [x] **B7** MS map click always opens the first included file (`inc$id[1]`).
   Carry `key = sample_id` on the traces and use `wire_selection`. Also `export_gg`
   lacks the non-finite/zero `cmax` guard. `R/mod_plot_map.R:162`. Votes 4/0/0.
 - [ ] **B8** "Suggest molecular ion" results (an `eventReactive`) go stale after
