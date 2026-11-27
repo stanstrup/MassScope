@@ -55,3 +55,17 @@ test_that("a filter the new file set cannot honour falls back to the default", {
     expect_match(as.character(output$controls$html), '<option value="1" selected>')
   })
 })
+
+test_that("before the panel renders, the filter stays at its default (MS1)", {
+  # Regression: the filter observer fires with every input NULL before the
+  # Filters section is first opened; NULL ms_level was read as "all levels",
+  # so MSn scans reached the Spectrum/MS map views at startup.
+  rv <- make_rv()
+  shiny::testServer(mod_filter_server,
+                    args = list(rv = rv, included = function() NULL), {
+    session$elapse(700)
+    expect_identical(rv$filter, empty_filter())
+  })
+  expect_identical(make_filter(list(), "min")$ms_level, 1L)
+  expect_true(is.na(make_filter(list(ms_level = "all"), "min")$ms_level))
+})

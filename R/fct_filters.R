@@ -31,7 +31,7 @@ empty_filter <- function() {
 
 #' Build a filter list from the mod_filter UI inputs. rt inputs are in `unit`
 #' (display) and stored in seconds; blank/non-finite numerics become NA (no
-#' constraint); ms_level "all"/blank -> NA. Keeps the input->filter coercion in
+#' constraint); ms_level "all" -> NA, unset -> the default. Keeps the input->filter coercion in
 #' one place so adding a field touches the schema and the appliers only.
 #' @noRd
 make_filter <- function(inputs, unit) {
@@ -41,8 +41,12 @@ make_filter <- function(inputs, unit) {
   f$rt_max  <- rt_to_sec(num(inputs$rt_max), unit)
   f$mz_min  <- num(inputs$mz_min);  f$mz_max  <- num(inputs$mz_max)
   f$int_min <- num(inputs$int_min); f$int_max <- num(inputs$int_max)
-  f$ms_level <- if (is.null(inputs$ms_level) || identical(inputs$ms_level, "all"))
-                  NA_integer_ else as.integer(inputs$ms_level)
+  # NULL = the Filters panel has not rendered yet: keep the default level (MS1).
+  # Only an explicit "all" lifts the constraint; reading NULL as "all" leaked
+  # MSn scans into the single-file views until the panel was first opened.
+  f$ms_level <- if (is.null(inputs$ms_level)) f$ms_level
+                else if (identical(inputs$ms_level, "all")) NA_integer_
+                else as.integer(inputs$ms_level)
   f$polarity <- if (!is.null(inputs$polarity)) inputs$polarity else "any"
   f$spectrum_id_rules <- inputs$spectrum_id_rules %||% list()
   f

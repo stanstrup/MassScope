@@ -23,7 +23,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
   persist as `"NA"`/`null`, NA `default_tol` reaches new EIC targets. One shared
   positive-number helper; guard the settings observers; type-check on load.
   `R/fct_export.R`, `R/mod_settings.R`, `R/fct_settings_store.R`. Votes 4/0/0.
-- [ ] **B5** `make_filter` maps a NULL `ms_level` (Filters panel not yet rendered)
+- [x] **B5** `make_filter` maps a NULL `ms_level` (Filters panel not yet rendered)
   to NA = all levels, so at startup MS2 scans leak into Spectrum/MS map, and
   opening Filters re-extracts the TIC. Map only `"all"` to NA.
   `R/fct_filters.R:44`. Votes 3/1/0 (reproduced with testServer).
