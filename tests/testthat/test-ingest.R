@@ -134,3 +134,13 @@ test_that("select_new_paths keeps the names of the files it keeps", {
     select_new_paths(c("/data/a.mzML", "/tmp/up1"), c("a.mzML", "orig.mzML"), existing),
     list(paths = "/tmp/up1", names = "orig.mzML"))
 })
+
+test_that("set_daemons does not respawn a pool that already has that size", {
+  # Startup spawns the saved count; the Settings restore then asks for the same
+  # count, which used to tear the pool down and spawn it again.
+  set_daemons(1)
+  spawned <- 0L
+  local_mocked_bindings(daemons = function(...) { spawned <<- spawned + 1L; invisible() })
+  expect_equal(set_daemons(1), 1L)
+  expect_equal(spawned, 0L)
+})

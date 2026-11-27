@@ -60,7 +60,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 - [ ] **E4** MS map scan numbers via `file_scan_table` + float rt matching; take
   `acquisitionNum(sp)` in `extract_peaks`. Check CDF first.
   `R/fct_extract.R:152,237`. Votes 2/2/0.
-- [ ] **E5** mzR preload duplicated outside `set_daemons`; `setup_runtime` spawns
+- [x] **E5** mzR preload duplicated outside `set_daemons`; `setup_runtime` spawns
   the default pool and the settings restore respawns at the saved size.
   `R/daemons.R`, `R/mod_settings.R:129`. Votes 2/2/0.
 - [x] **E6** `difference_network` is an O(n²) loop with a tibble per hit (2.1 s at

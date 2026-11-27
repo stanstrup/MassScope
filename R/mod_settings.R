@@ -73,7 +73,6 @@ mod_settings_ui <- function(id) {
   )
 }
 
-#' @importFrom mirai everywhere
 #' @noRd
 mod_settings_server <- function(id, rv) {
   moduleServer(id, function(input, output, session) {
@@ -132,7 +131,6 @@ mod_settings_server <- function(id, rv) {
     observeEvent(daemon_n(), {
       req(daemon_n())
       rv$settings$daemons <- set_daemons(daemon_n())
-      everywhere(suppressWarnings(requireNamespace("mzR", quietly = TRUE)))
     }, ignoreInit = TRUE)
 
     # Persist settings across restarts (debounced; ignoreInit so loading doesn't
