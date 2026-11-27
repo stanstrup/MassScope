@@ -27,3 +27,6 @@ Rplots.pdf
 
 # Hex sticker, fetched at build time (tools/fetch_logo.R)
 /man/figures/logo.*
+
+# testthat copies of failing tests (regenerated on every failure)
+tests/testthat/_problems/
