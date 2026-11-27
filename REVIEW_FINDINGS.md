@@ -36,7 +36,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 - [x] **B8** "Suggest molecular ion" results (an `eventReactive`) go stale after
   moving to another scan/file; the old anchor is drawn on the new spectrum. Reset
   on spectrum change. `R/mod_plot_spectrum.R:367`. Votes 3/1/0.
-- [ ] **B9** `text_traces_vertical` rotates the difference-network Δ labels too
+- [x] **B9** `text_traces_vertical` rotates the difference-network Δ labels too
   (meant horizontal). `R/mod_plot_spectrum.R:915`. Votes 1/3/0 (reproduced by its
   reviewer).
 - [ ] **B10** Facet/Stacked layouts look up the ion mode with the first row's scan

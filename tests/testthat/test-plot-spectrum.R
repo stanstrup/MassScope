@@ -212,3 +212,30 @@ test_that("Suggest results are cleared when the spectrum changes", {
     expect_null(ranked_val())
   }))
 })
+
+test_that("difference-network labels stay horizontal", {
+  # Regression: every text trace was turned into a -90 degree annotation,
+  # including the delta labels meant to sit flat above each bracket.
+  p <- profile_file()
+  files <- tibble::tibble(
+    id = "f1", path = p, name = basename(p), sample_group = "g1",
+    include = TRUE, status = "ready", n_spectra = 1L,
+    rt_min = 0, rt_max = 1e5, mz_min = 0, mz_max = 1e4,
+    ms_levels = "1", polarities = "1", charges = NA_character_,
+    spec_mode = "mixed", message = NA_character_)
+  rv <- make_rv(); rv$files <- files
+  included <- reactive(files)
+  suppressWarnings(shiny::testServer(mod_plot_spectrum_server,
+                    args = list(rv = rv, included = included), {
+    session$setInputs(layout = "single", rt = 0.5, scan = NA, annotate = TRUE,
+                      ann_mode = "diff", ann_pol = "pos", ann_tol = 20,
+                      ann_unit = "ppm", ann_match_snr = 0, ann_min_int = 0,
+                      ann_top_n = 60, cmode = "off", csnr = 0, chws = 2, ck = 0,
+                      showpts = FALSE, click_action = "eic")
+    skip_if_not(nrow(ann_result()$edges) > 0, "no difference edges in test scan")
+    w <- jsonlite::fromJSON(output$plot, simplifyVector = FALSE)
+    angles <- vapply(w$x$layout$annotations %||% list(),
+                     function(a) as.numeric(a$textangle %||% 0), numeric(1))
+    expect_false(any(angles == -90))
+  }))
+})

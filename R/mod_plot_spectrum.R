@@ -655,8 +655,11 @@ mod_plot_spectrum_server <- function(id, rv, included) {
     output$plot <- renderPlotly({
       p <- finalize_plotly(plot_gg(), "spec", zoom$apply)
       # ggplotly drops geom_text `angle`, so rotate the label traces here. Build
-      # first: trace `mode` ("text") is only populated after plotly_build().
-      if (isTRUE(input$annotate)) p <- text_traces_vertical(plotly::plotly_build(p))
+      # first: trace `mode` ("text") is only populated after plotly_build(). The
+      # difference network's delta labels sit horizontally over their brackets,
+      # and are its only text, so that mode is left alone.
+      if (isTRUE(input$annotate) && !identical(input$ann_mode, "diff"))
+        p <- text_traces_vertical(plotly::plotly_build(p))
       arm_hmdb_on_click(p, session$ns("click_action"))
     })
 
