@@ -53,6 +53,10 @@ mod_plot_precursors_server <- function(id, rv, included) {
       c(num(input$pmz_min), num(input$pmz_max))
     }), 500)
 
+    # Extract only what the files decide (id + precursors), cached on the MS2 file
+    # set, filter and precursor range. Names and groups are joined at plot time, as
+    # on the TIC/EIC: renaming a group or (un)ticking a file without MS2 used to
+    # re-read every MS2 file.
     prec_df <- reactive({
       f2 <- ms2_files()
       validate(need(nrow(f2) > 0,
@@ -61,34 +65,34 @@ mod_plot_precursors_server <- function(id, rv, included) {
         flt <- rv$filter
         pr <- pmz_range()
         extract_over_files(f2, function(p) extract_precursors(p, flt, pr),
-                           cols = c("sample_id", "sample_name", "sample_group"),
-                           on_error = notify_read_failures)
+                           cols = "sample_id", on_error = notify_read_failures)
       })
+    }) %>% bindCache({
+      f2 <- ms2_files(); o <- order(f2$path)
+      list(paths = f2$path[o], ids = f2$id[o], filter = rv$filter, pmz = pmz_range())
     })
 
     plot_gg <- reactive({
       df <- prec_df()
       validate(need(nrow(df) > 0, "No precursor ions found (check the Filters)."))
-      df$sample_name <- strip_ext(df$sample_name)   # display label: drop extension
+      inc <- included(); idx <- match(df$sample_id, inc$id)
+      df$sample_name <- inc$disp_name[idx]   # unique display label (disambiguated)
+      df$sample_group <- inc$sample_group[idx]
       unit <- rv$settings$time_unit
       df$rt_disp <- rt_to_disp(df$rt, unit)
       df$.tip <- sprintf("precursor m/z: %.4f\nscan: %s\nrt: %.4g %s | %s",
                          df$precursorMZ, ifelse(is.na(df$scan), "?", df$scan),
                          df$rt_disp, unit, df$sample_name)
       cby <- input$color_by
+      # "None" is one colour for every point: a constant .color through the same
+      # aesthetic and scale, so there is a single ggplot() call either way.
+      df$.color <- if (identical(cby, "none")) "all" else df[[cby]]
       p <- ggplot(df, aes(x = rt_disp, y = precursorMZ,
-                                            key = sample_id, text = .tip))
-      if (identical(cby, "none")) {
-        p <- p + geom_point(
-          color = brewer_qual(1, rv$settings$qual_palette), alpha = 0.5, size = 1.2)
-      } else {
-        df$.color <- df[[cby]]
-        p <- ggplot(df, aes(x = rt_disp, y = precursorMZ,
-                                              color = .color, key = sample_id, text = .tip)) +
-          geom_point(alpha = 0.5, size = 1.2) +
-          scale_color_manual(
-            values = brewer_named(unique(df$.color), rv$settings$qual_palette))
-      }
+                          color = .color, key = sample_id, text = .tip)) +
+        geom_point(alpha = 0.5, size = 1.2) +
+        scale_color_manual(
+          values = brewer_named(unique(df$.color), rv$settings$qual_palette),
+          guide = if (identical(cby, "none")) "none" else "legend")
       p + labs(x = rt_axis_label(unit), y = "precursor m/z", color = NULL) +
         theme_bw()
     })

@@ -54,7 +54,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
   every spectrum change. `R/mod_plot_spectrum.R:308`. Votes 4/0/0.
 - [x] **E2** Changing Min int re-reads and re-picks; split the picked pool from the
   intensity floor. `R/mod_plot_spectrum.R:333`. Votes 3/1/0.
-- [ ] **E3** Precursors re-extract on a group rename (depend on `included()`, no
+- [x] **E3** Precursors re-extract on a group rename (depend on `included()`, no
   cache); join metadata at plot time, legend by `disp_name`, one `ggplot()` call.
   `R/mod_plot_precursors.R:41-87`. Votes 4/0/0.
 - [ ] **E4** MS map scan numbers via `file_scan_table` + float rt matching; take
