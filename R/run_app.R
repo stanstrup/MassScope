@@ -71,8 +71,15 @@ app_server <- function(input, output, session) {
   mod_filter_server("filter", rv, included)
 
   # Cache key for extraction reactives: only the included PATH SET and the
-  # global filter should trigger re-extraction (not status/group edits).
-  data_key <- reactive(list(paths = sort(included()$path), filter = rv$filter))
+  # global filter should trigger re-extraction (not status/group edits). The
+  # per-session file ids ride along: the cached tables carry sample_id, and a
+  # file re-added (or the same files loaded in another order after a restart)
+  # gets a different id, so a key on paths alone served rows whose ids no longer
+  # matched (swapped or missing names, groups and click targets).
+  data_key <- reactive({
+    inc <- included(); o <- order(inc$path)
+    list(paths = inc$path[o], ids = inc$id[o], filter = rv$filter)
+  })
 
   # Raw MsExperiment cached on the path set (built under SerialParam, so fast);
   # the global filter is applied lazily on top. Kept in the in-memory SESSION

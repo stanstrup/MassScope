@@ -42,3 +42,19 @@ test_that("a burst of file (de)selections settles into one update", {
     expect_equal(nrow(included()), 1L)
   })
 })
+
+test_that("the extraction cache key changes when a path gets a different file id", {
+  # Regression: the key was the path set alone, while cached tables carry the
+  # per-session sample_id; loading the same files in another order after a
+  # restart served rows with swapped ids.
+  shiny::testServer(app_server, {
+    rv$files <- ready_rows(2)
+    session$flushReact()
+    k1 <- data_key()
+    swapped <- ready_rows(2); swapped$id <- rev(swapped$id)
+    rv$files <- swapped
+    session$elapse(SELECTION_DEBOUNCE_MS + 50)
+    expect_false(identical(data_key(), k1))
+    expect_identical(data_key()$paths, k1$paths)
+  })
+})
