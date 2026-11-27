@@ -176,6 +176,11 @@ directory):
 - **Palettes** — ColorBrewer qualitative (traces/groups) and
   viridis/sequential (maps); the scale can be inverted.
 - **EIC defaults** — default tolerance value and unit for new targets.
+- **HMDB search** — the tolerance (default 5 ppm; usually narrower than
+  an EIC window) and the adducts searched in positive and negative mode
+  when a spectrum peak is clicked with *Click on a peak* set to **→
+  search HMDB** (see
+  [Spectrum](https://stanstrup.github.io/MassScope/articles/spectrum.html#search-hmdb-for-a-peak)).
 - **Parallel readers** — the mirai daemon-pool size for async file
   reading.
 - **Export defaults** — format (png/svg/pdf), size, units, DPI.

@@ -110,13 +110,15 @@ control in this tab’s panel, default <em>Raw</em>). It is drawn as a
 continuous <strong>line</strong> — which is what profile data actually
 is, rather than a stick per detector sample — and the title is marked
 <em>profile</em>. A click returns exactly the <em>m/z</em> you clicked
-(the nearest raw sample), which it sends to the EIC list or uses as the
-annotation anchor. Set <strong>Peak picking</strong> to <em>Centroid
-profile scans</em> for a conventional stick plot (the S/N, half-window
-and <em>m/z</em>-accuracy settings then appear), or <strong>Raw +
-centroids overlay</strong> to draw the picked centroids on top of the
-raw line — then a click can land on the true centroid. <strong>Show data
-points</strong> overlays the individual detector samples. See <a href="getting_started.html#profile-mode-data">Getting started</a>.</p>
+(the nearest raw sample), which it sends to the EIC list, searches in
+HMDB or uses as the annotation anchor. Set <strong>Peak picking</strong>
+to <em>Centroid profile scans</em> for a conventional stick plot (the
+S/N, half-window and <em>m/z</em>-accuracy settings then appear), or
+<strong>Raw + centroids overlay</strong> to draw the picked centroids on
+top of the raw line — then a click can land on the true centroid.
+<strong>Show data points</strong> overlays the individual detector
+samples. See <a href="getting_started.html#profile-mode-data">Getting
+started</a>.</p>
 <div class="float">
 <img src="figures/spectrum_profile.png" style="width:100.0%" alt="A profile-mode scan drawn as a line, with the Peak-picking panel"><div class="figcaption">A profile-mode scan drawn as a line, with the
 Peak-picking panel</div>
@@ -131,7 +133,32 @@ it matches against.</p>
 <p><strong>Click a peak</strong> to add its <em>m/z</em> to the <a href="eic.html">EIC</a> target list (the default click action). Click
 the ions you want, then open the EIC tab to extract their chromatograms
 across files. (When annotation is on you can switch the click action to
-<em>set anchor</em> instead — see below.)</p>
+<em>annotation anchor</em> instead — see below.)</p>
+</div>
+<div class="section level2">
+<h2 id="search-hmdb-for-a-peak">Search HMDB for a peak<a class="anchor" aria-label="anchor" href="#search-hmdb-for-a-peak"></a>
+</h2>
+<p>Set <strong>Click on a peak</strong> to <strong>→ search
+HMDB</strong> and a click opens the <a href="https://hmdb.ca/spectra/ms/search" class="external-link">HMDB LC-MS search</a> for that
+<em>m/z</em> in a new browser tab. The search uses:</p>
+<ul>
+<li>the <strong>ion mode</strong> of the scan on screen (the
+annotation’s <em>Ion mode</em>, which follows the scan’s polarity);</li>
+<li>the <strong>adducts</strong> set for that mode in <strong>Settings →
+HMDB search</strong> (default <code>M+H</code>, <code>M+Na</code>,
+<code>M+NH4</code> positive; <code>M-H</code>, <code>M+Cl</code>,
+<code>M+FA-H</code> negative);</li>
+<li>the <strong>tolerance</strong> from the same settings (default 5
+ppm), kept separate from the EIC tolerance because a database search is
+usually narrower.</li>
+</ul>
+<p>When annotation is on and the clicked peak is labelled as an adduct,
+only that adduct is searched (e.g. a peak labelled <code>[M+Na]+</code>
+searches <code>M+Na</code>). If HMDB has no such adduct (an in-source
+fragment, say), the implied neutral mass is searched in HMDB’s
+<em>neutral</em> mode instead.</p>
+<p>The search runs in your browser, so HMDB’s own page and results
+appear there; nothing is sent through MassScope.</p>
 </div>
 <div class="section level2">
 <h2 id="scan-list">Scan list<a class="anchor" aria-label="anchor" href="#scan-list"></a>
@@ -160,7 +187,7 @@ annotation on a spectrum</div>
 <li>
 <strong>Manual anchor</strong> — pick the peak you believe is a
 known ion (default <code>[M+H]+</code> / <code>[M-H]-</code>,
-selectable). Switch <em>Click on a peak</em> to <strong>→ set
+selectable). Switch <em>Click on a peak</em> to <strong>→ annotation
 anchor</strong> and click the peak, or type its <em>m/z</em>. The
 neutral mass is derived from it and every adduct and in-source fragment
 (from <a href="https://github.com/stanstrup/commonMZ" class="external-link">commonMZ</a>; the
