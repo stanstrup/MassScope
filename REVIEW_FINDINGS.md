@@ -27,7 +27,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
   to NA = all levels, so at startup MS2 scans leak into Spectrum/MS map, and
   opening Filters re-extracts the TIC. Map only `"all"` to NA.
   `R/fct_filters.R:44`. Votes 3/1/0 (reproduced with testServer).
-- [ ] **B6** Switching the time unit re-seeds the rt filter boxes with the old
+- [x] **B6** Switching the time unit re-seeds the rt filter boxes with the old
   number under the new unit label (5 min shown as "5" sec). Seed from
   `rt_to_disp(rv$filter$rt_*)`. `R/mod_filter.R:429-475`. Votes 3/1/0 (reproduced).
 - [ ] **B7** MS map click always opens the first included file (`inc$id[1]`).

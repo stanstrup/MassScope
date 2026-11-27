@@ -69,3 +69,20 @@ test_that("before the panel renders, the filter stays at its default (MS1)", {
   expect_identical(make_filter(list(), "min")$ms_level, 1L)
   expect_true(is.na(make_filter(list(ms_level = "all"), "min")$ms_level))
 })
+
+test_that("switching the time unit converts the typed rt bounds", {
+  # Regression: 5 (min) was re-seeded as "5" under the "sec" label.
+  rv <- make_rv()
+  files <- shiny::reactiveVal(inc_rows(1))
+  shiny::testServer(mod_filter_server,
+                    args = list(rv = rv, included = function() files()), {
+    output$controls                       # first render, in minutes
+    session$setInputs(rt_min = 5)
+    session$elapse(700)
+    expect_equal(rv$filter$rt_min, 300)
+
+    rv$settings$time_unit <- "sec"
+    session$flushReact()
+    expect_match(as.character(output$controls$html), 'value="300"')
+  })
+})

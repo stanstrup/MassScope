@@ -86,6 +86,17 @@ mod_filter_server <- function(id, rv, included) {
     # user had typed. So each control is re-seeded from its own current value
     # (isolated: this must not make the panel re-render on every keystroke).
     keep <- function(id, default = NA) isolate(input[[id]]) %||% default
+    # The rt boxes are typed in the display unit, so a min <-> sec switch must
+    # convert them: re-seeding the bare number put "5" (min) under the new
+    # "sec" label, and the next edit applied it as 5 s. `shown_unit` is the unit
+    # the boxes were last drawn in (plain state: it must not trigger a render).
+    shown_unit <- NULL
+    keep_rt <- function(id, unit) {
+      v <- keep(id)
+      if (!is.null(shown_unit) && !identical(shown_unit, unit))
+        v <- rt_to_disp(rt_to_sec(v, shown_unit), unit)
+      v
+    }
     output$controls <- renderUI({
       r <- ranges()
       if (is.null(r))
@@ -101,9 +112,9 @@ mod_filter_server <- function(id, rv, included) {
       ms_now <- keep("ms_level", NULL)
       ms_sel <- if (!is.null(ms_now) && ms_now %in% c("all", r$ms_levels)) ms_now
                 else if ("1" %in% r$ms_levels) "1" else "all"
-      tagList(
+      ui <- tagList(
         .minmax(ns, "rt", sprintf("Retention time (%s)", unit), rt_hint, 0.01,
-                keep("rt_min"), keep("rt_max")),
+                keep_rt("rt_min", unit), keep_rt("rt_max", unit)),
         .minmax(ns, "mz", "m/z", mz_hint, 0.0001, keep("mz_min"), keep("mz_max")),
         .minmax(ns, "int", "Intensity", "", 1, keep("int_min"), keep("int_max")),
         div(class = "d-flex gap-2",
@@ -116,6 +127,8 @@ mod_filter_server <- function(id, rv, included) {
                             selected = keep("polarity", "any")))),
         helpText("Leave a box blank for no limit.")
       )
+      shown_unit <<- unit
+      ui
     })
 
     filter_inputs <- reactive({
