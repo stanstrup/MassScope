@@ -158,3 +158,32 @@ test_that("annotation layers on an empty spectrum add nothing and don't warn", {
   expect_no_warning(out <- annotate_layers(p, list(mode = "adduct"), empty, "Set1"))
   expect_identical(out, p)
 })
+
+test_that("with annotation off a spectrum change reads the scan once", {
+  # Regression: the anchor-default observer's event expression evaluated the
+  # annotation pool, so every rt change also re-read and peak-picked the scan.
+  p <- profile_file()
+  files <- tibble::tibble(
+    id = "f1", path = p, name = basename(p), sample_group = "g1",
+    include = TRUE, status = "ready", n_spectra = 1L,
+    rt_min = 0, rt_max = 1e5, mz_min = 0, mz_max = 1e4,
+    ms_levels = "1", polarities = "1", charges = NA_character_,
+    spec_mode = "mixed", message = NA_character_)
+  rv <- make_rv(); rv$files <- files
+  included <- reactive(files)
+  reads <- 0L
+  real <- extract_spectrum
+  local_mocked_bindings(extract_spectrum = function(...) {
+    reads <<- reads + 1L; real(...)
+  })
+  suppressWarnings(shiny::testServer(mod_plot_spectrum_server,
+                    args = list(rv = rv, included = included), {
+    session$setInputs(layout = "single", rt = 0.5, scan = NA, annotate = FALSE,
+                      cmode = "off", csnr = 0, chws = 2, ck = 0, showpts = FALSE)
+    spec_df()
+    reads <<- 0L
+    session$setInputs(rt = 0.6)
+    spec_df()
+    expect_equal(reads, 1L)
+  }))
+})

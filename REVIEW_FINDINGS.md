@@ -49,10 +49,10 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 
 ## Performance
 
-- [ ] **E1** The annotation observer's event expression evaluates
+- [x] **E1** The annotation observer's event expression evaluates
   `ann_candidates()` even with annotation off → an extra extract + pickPeaks on
   every spectrum change. `R/mod_plot_spectrum.R:308`. Votes 4/0/0.
-- [ ] **E2** Changing Min int re-reads and re-picks; split the picked pool from the
+- [x] **E2** Changing Min int re-reads and re-picks; split the picked pool from the
   intensity floor. `R/mod_plot_spectrum.R:333`. Votes 3/1/0.
 - [ ] **E3** Precursors re-extract on a group rename (depend on `included()`, no
   cache); join metadata at plot time, legend by `disp_name`, one `ggplot()` call.
@@ -72,7 +72,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 
 ## Simplification
 
-- [ ] **C1** One spectrum-selection helper for the three duplicated blocks
+- [x] **C1** One spectrum-selection helper for the three duplicated blocks
   (`spec_df`, `overlay_df`, `ann_candidates`), which have already drifted
   (`f$name` vs `cur_disp()`). With E1/E2. Votes 4/0/0.
 - [ ] **C2** TIC and EIC share ~20 lines (extraction, decoration, theme). After

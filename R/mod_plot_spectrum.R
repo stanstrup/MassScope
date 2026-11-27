@@ -222,30 +222,41 @@ mod_plot_spectrum_server <- function(id, rv, included) {
         updateNumericInput(session, "scan", value = max(scans))
     })
 
-    # Peak picking is this tab's own control (default off = raw trace, drawn as a
-    # line). The global filter still chooses which spectrum.
-    one_spectrum <- function(path, rt_sec, scan) {
-      extract_spectrum(path, rt = rt_sec,
-                       scan = if (is.finite(scan)) as.integer(scan) else NA_integer_,
-                       f = rv$filter, cp = read_centroid_spec(input))
+    # Which spectrum is asked for: the rt (seconds) and, in the single view, an
+    # explicit acquisition number. The one place this is read from the inputs, so
+    # the displayed spectrum, the centroid overlay and the annotation pool can't
+    # disagree about the scan.
+    spec_sel <- reactive({
+      scan <- if (identical(input$layout, "single") && isTRUE(is.finite(input$scan)))
+                as.integer(input$scan) else NA_integer_
+      rt_sec <- if (isTRUE(is.finite(input$rt)))
+                  rt_to_sec(input$rt, rv$settings$time_unit) else NA_real_
+      list(rt_sec = rt_sec, scan = scan)
+    })
+    # The selected spectrum of the single-view file, reduced with `cp`.
+    read_single <- function(cp) {
+      s <- spec_sel()
+      d <- extract_spectrum(cur_row()$path, rt = s$rt_sec, scan = s$scan,
+                            f = rv$filter, cp = cp)
+      d$sample_name <- cur_disp()
+      d
     }
 
+    # Peak picking is this tab's own control (default off = raw trace, drawn as a
+    # line). The global filter still chooses which spectrum.
     spec_df <- reactive({
-      unit <- rv$settings$time_unit
-      use_scan <- identical(input$layout, "single") &&
-        !is.null(input$scan) && is.finite(input$scan)
-      rt_disp <- input$rt
-      validate(need(use_scan || is.finite(rt_disp),
+      s <- spec_sel()
+      validate(need(is.finite(s$scan) || is.finite(s$rt_sec),
                     "Enter a retention time (or scan number), or click a chromatogram."))
-      rt_sec <- if (is.finite(rt_disp)) rt_to_sec(rt_disp, unit) else NA_real_
+      cp <- read_centroid_spec(input)
       withProgress(message = "Reading spectrum\u2026", value = 0.5, {
         if (identical(input$layout, "single")) {
-          f <- cur_row()
-          d <- one_spectrum(f$path, rt_sec, input$scan); d$sample_name <- cur_disp(); d
+          read_single(cp)
         } else {
           inc <- included(); validate(need(nrow(inc) > 0, "Include at least one file."))
-          d <- extract_over_files(inc, function(p) one_spectrum(p, rt_sec, NA_integer_),
-                                  cols = "disp_name", on_error = notify_read_failures)
+          d <- extract_over_files(inc, function(p)
+                 extract_spectrum(p, rt = s$rt_sec, scan = NA_integer_, f = rv$filter, cp = cp),
+                 cols = "disp_name", on_error = notify_read_failures)
           if (nrow(d)) d$sample_name <- d$disp_name
           d
         }
@@ -263,16 +274,8 @@ mod_plot_spectrum_server <- function(id, rv, included) {
           !identical(input$layout, "single")) return(empty)
       d0 <- spec_df()
       if (!nrow(d0) || !isTRUE(all(d0$profile))) return(empty)
-      unit <- rv$settings$time_unit
-      use_scan <- !is.null(input$scan) && is.finite(input$scan)
-      rt_sec <- if (isTRUE(is.finite(input$rt))) rt_to_sec(input$rt, unit) else NA_real_
       cp <- read_centroid_spec(input); cp$mode <- "auto"   # overlay always picks
-      f <- cur_row()
-      d <- extract_spectrum(f$path, rt = rt_sec,
-                            scan = if (use_scan) as.integer(input$scan) else NA_integer_,
-                            f = rv$filter, cp = cp)
-      d$sample_name <- f$name
-      d
+      read_single(cp)
     })
 
     # --- annotation controls --------------------------------------------------
@@ -305,7 +308,10 @@ mod_plot_spectrum_server <- function(id, rv, included) {
         updateSelectInput(session, "ann_pol", selected = if (pol == 1L) "pos" else "neg")
     }, ignoreInit = FALSE)
     # Default the anchor to the base peak when annotation turns on / spectrum changes.
-    observeEvent(list(input$annotate, ann_candidates()), {
+    # Triggered by spec_df(), not ann_candidates(): an event expression is always
+    # evaluated, and reading the pool here re-read and re-picked every spectrum
+    # even with annotation off.
+    observeEvent(list(input$annotate, spec_df()), {
       if (isTRUE(input$annotate) && !isTRUE(is.finite(input$anchor_mz))) {
         df <- ann_candidates()
         if (nrow(df)) updateNumericInput(session, "anchor_mz",
@@ -330,18 +336,13 @@ mod_plot_spectrum_server <- function(id, rv, included) {
     # single, transparent reduction — the engine no longer hides a naive reducer of
     # its own (centroid_peaks() is a no-op on these well-separated centroids). The
     # count is surfaced so you can see how many peaks feed matching.
-    ann_candidates <- reactive({
+    # Read + pick and the intensity floor are separate reactives, so moving Min
+    # int only re-filters the picked list instead of re-reading the scan.
+    ann_picked <- reactive({
       req(identical(input$layout, "single"))
-      f <- cur_row()
-      unit <- rv$settings$time_unit
-      use_scan <- !is.null(input$scan) && is.finite(input$scan)
-      rt_sec <- if (isTRUE(is.finite(input$rt))) rt_to_sec(input$rt, unit) else NA_real_
-      cp <- centroid_spec("auto", snr = ann_match_snr())
-      d <- extract_spectrum(f$path, rt = rt_sec,
-                            scan = if (use_scan) as.integer(input$scan) else NA_integer_,
-                            f = rv$filter, cp = cp)
-      ann_peaks(d)
+      read_single(centroid_spec("auto", snr = ann_match_snr()))
     })
+    ann_candidates <- reactive(ann_peaks(ann_picked()))
     output$ann_count <- renderText({
       req(isTRUE(input$annotate), identical(input$layout, "single"))
       n <- tryCatch(nrow(ann_candidates()), error = function(e) NA_integer_)
