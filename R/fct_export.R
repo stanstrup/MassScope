@@ -40,12 +40,13 @@ save_gg <- function(gg, file, settings) {
                             title = settings$export_title %||% "plot")
     return(invisible(file))
   }
+  # The same fallback as the preview (preview_dims): if EITHER side is unusable
+  # both become 8 x 5, so an emptied field can't save a file shaped differently
+  # from what was shown.
+  w <- settings$export_width; h <- settings$export_height
+  if (!is_pos_num(w) || !is_pos_num(h)) { w <- 8; h <- 5 }
   args <- list(
-    filename = file, plot = gg,
-    # The same fallback size as the preview (preview_dims), so an emptied field
-    # can't save a file shaped differently from what was shown.
-    width = pos_num(settings$export_width, 8),
-    height = pos_num(settings$export_height, 5),
+    filename = file, plot = gg, width = w, height = h,
     units = settings$export_units %||% "in"
   )
   if (fmt == "png") {

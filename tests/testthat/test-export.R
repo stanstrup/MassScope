@@ -95,3 +95,15 @@ test_that("save_gg survives emptied size/DPI fields", {
   d <- dim(png::readPNG(f))
   expect_equal(d[2] / d[1], 8 / 5, tolerance = 0.01)
 })
+
+test_that("save_gg falls back to 8 x 5 as a pair, like the preview", {
+  skip_if_not_installed("png")
+  gg <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_line()
+  f <- withr::local_tempfile(fileext = ".png")
+  save_gg(gg, f, list(export_format = "png", export_width = NA, export_height = 10,
+                      export_units = "in", export_dpi = 50))
+  d <- dim(png::readPNG(f))
+  expect_equal(d[2] / d[1], 8 / 5, tolerance = 0.01)
+  expect_identical(preview_dims(NA, 10), preview_dims(8, 5))
+})
