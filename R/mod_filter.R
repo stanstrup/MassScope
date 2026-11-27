@@ -76,7 +76,7 @@ mod_filter_server <- function(id, rv, included) {
 
     ranges <- reactive({
       inc <- included()
-      if (nrow(inc) == 0) return(NULL)
+      if (is.null(inc) || nrow(inc) == 0) return(NULL)
       combined_ranges(inc)
     })
 
@@ -148,8 +148,19 @@ mod_filter_server <- function(id, rv, included) {
     # filter equal to the current one. Reassigning an equal value would still
     # invalidate data_key() and needlessly re-extract every chromatogram — the
     # "TIC redraws when I open Filters" symptom. Skip the no-op assignment.
-    observeEvent(filter_inputs(), {
-      f <- make_filter(filter_inputs(), rv$settings$time_unit)
+    observeEvent(list(filter_inputs(), ranges()), {
+      fi <- filter_inputs()
+      f <- make_filter(fi, rv$settings$time_unit)
+      # Before the panel renders, use the level the panel will pick: MS1, or
+      # "all" for a file set without MS1 (MS2-only), which MS1 would blank.
+      r <- ranges()
+      if (is.null(fi$ms_level) && !is.null(r) && !("1" %in% r$ms_levels))
+        f$ms_level <- NA_integer_
+      # An rt bound shown in the other unit comes back with float noise
+      # (37 s -> "0.616666666666667" min -> 37.000000000000021 s); that is the
+      # same bound and must not count as a change.
+      for (k in c("rt_min", "rt_max"))
+        if (isTRUE(abs(f[[k]] - rv$filter[[k]]) < 1e-6)) f[[k]] <- rv$filter[[k]]
       if (!identical(rv$filter, f)) rv$filter <- f
     }, ignoreNULL = FALSE)
 

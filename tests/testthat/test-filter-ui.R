@@ -86,3 +86,28 @@ test_that("switching the time unit converts the typed rt bounds", {
     expect_match(as.character(output$controls$html), 'value="300"')
   })
 })
+
+test_that("an MS2-only file set defaults to all levels before the panel opens", {
+  rv <- make_rv()
+  shiny::testServer(mod_filter_server,
+                    args = list(rv = rv, included = function() inc_rows(1, ms = "2")), {
+    session$elapse(700)
+    expect_true(is.na(rv$filter$ms_level))
+  })
+})
+
+test_that("a unit round-trip of an rt bound is not a filter change", {
+  rv <- make_rv()
+  files <- shiny::reactiveVal(inc_rows(1))
+  shiny::testServer(mod_filter_server,
+                    args = list(rv = rv, included = function() files()), {
+    output$controls
+    session$setInputs(rt_min = 37 / 60)
+    session$elapse(700)
+    f0 <- rv$filter
+    # what the browser sends back for value = 37/60 after a sec -> min switch
+    session$setInputs(rt_min = as.numeric(format(37 / 60, digits = 15)))
+    session$elapse(700)
+    expect_identical(rv$filter, f0)
+  })
+})
