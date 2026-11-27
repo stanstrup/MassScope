@@ -29,15 +29,17 @@ mod_settings_ui <- function(id) {
                     value = max(1L, detectCores() - 1L), step = 1)
       ),
       settings_card(
-        "EIC & HMDB search",
-        helpText(strong("EIC defaults"), " \u2014 applied to new targets and the paste box."),
+        "EIC defaults",
+        helpText("Applied to new targets and the paste box."),
         row(c(6, 6),
             numericInput(ns("default_tol"), "Default \u00b1 tolerance", value = 10, min = 0),
-            selectInput(ns("default_tol_unit"), "Unit", choices = c("ppm", "Da"))),
-        hr(),
-        helpText(strong("HMDB search"), " \u2014 a Spectrum peak click set to ",
-                 "\u201csearch HMDB\u201d opens hmdb.ca with these. An annotated peak ",
-                 "searches its own adduct instead."),
+            selectInput(ns("default_tol_unit"), "Unit", choices = c("ppm", "Da")))
+      ),
+      settings_card(
+        "HMDB search",
+        helpText("A Spectrum peak click set to \u201csearch HMDB\u201d opens hmdb.ca with ",
+                 "these. An annotated peak searches its own adduct instead. Usually ",
+                 "narrower than the EIC tolerance."),
         row(c(6, 6),
             numericInput(ns("hmdb_tol"), "\u00b1 tolerance", value = 5, min = 0),
             selectInput(ns("hmdb_tol_unit"), "Unit", choices = c("ppm", "Da"))),
@@ -88,8 +90,10 @@ mod_settings_server <- function(id, rv) {
       if (!is.null(saved$default_tol_unit)) updateSelectInput(session, "default_tol_unit", selected = saved$default_tol_unit)
       if (!is.null(saved$hmdb_tol))      updateNumericInput(session, "hmdb_tol", value = saved$hmdb_tol)
       if (!is.null(saved$hmdb_tol_unit)) updateSelectInput(session, "hmdb_tol_unit", selected = saved$hmdb_tol_unit)
-      if (!is.null(saved$hmdb_adducts_pos)) updateSelectizeInput(session, "hmdb_adducts_pos", selected = saved$hmdb_adducts_pos)
-      if (!is.null(saved$hmdb_adducts_neg)) updateSelectizeInput(session, "hmdb_adducts_neg", selected = saved$hmdb_adducts_neg)
+      # An empty list searches the defaults (hmdb_search_url), so restore it as
+      # the defaults too: an empty box would misstate what a click searches.
+      if (length(saved$hmdb_adducts_pos)) updateSelectizeInput(session, "hmdb_adducts_pos", selected = unlist(saved$hmdb_adducts_pos))
+      if (length(saved$hmdb_adducts_neg)) updateSelectizeInput(session, "hmdb_adducts_neg", selected = unlist(saved$hmdb_adducts_neg))
       if (!is.null(saved$daemons))      updateSliderInput(session, "daemons", value = saved$daemons)
       if (!is.null(saved$export_format))updateSelectInput(session, "export_format", selected = saved$export_format)
       if (!is.null(saved$export_width)) updateNumericInput(session, "export_width", value = saved$export_width)
