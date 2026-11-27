@@ -169,7 +169,7 @@ mod_plot_eic_server <- function(id, rv, dataset, meta, data_key) {
     enabled_targets <- reactive({
       tg <- rv$eic_targets
       tg <- tg[isTRUE_vec(tg$enabled) & is.finite(tg$mz) &
-                 is.finite(tg$tol) & tg$tol >= 0, , drop = FALSE]
+                 is.finite(tg$tol) & tg$tol > 0, , drop = FALSE]
       # The label is the trace key: two targets sharing one (the same m/z pasted
       # twice, or an edit) would be drawn as a single zig-zag line.
       tg$label <- make.unique(as.character(tg$label), sep = " #")
