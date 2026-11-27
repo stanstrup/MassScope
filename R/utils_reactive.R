@@ -3,7 +3,6 @@
 #' Create the app-wide reactive store. One instance lives in the main server
 #' and is passed to every module.
 #' @importFrom tibble tibble
-#' @importFrom parallel detectCores
 #' @noRd
 make_rv <- function() {
   reactiveValues(
@@ -60,7 +59,7 @@ make_rv <- function() {
       hmdb_tol_unit = "ppm",
       hmdb_adducts_pos = HMDB_DEFAULT_ADDUCTS$pos,
       hmdb_adducts_neg = HMDB_DEFAULT_ADDUCTS$neg,
-      daemons      = max(1L, detectCores() - 1L),
+      daemons      = .default_daemons(),
       export_format = "png",
       export_width  = 8,
       export_height = 5,

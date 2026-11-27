@@ -2,10 +2,14 @@
 # tail of global.R). These run when the app launches, NOT on package load —
 # spawning worker processes / setting global options belongs to run_app().
 
-# Default daemon count: one per core, leaving one free.
+# Default daemon count: one per core, leaving one free. detectCores() can be
+# NA on some platforms, which would put NA in the slider and the pool size.
 #' @importFrom parallel detectCores
 #' @noRd
-.default_daemons <- function() max(1L, detectCores() - 1L)
+.default_daemons <- function() {
+  n <- detectCores()
+  if (isTRUE(n >= 2)) as.integer(n) - 1L else 1L
+}
 
 # The pool size set last by set_daemons() in this R session.
 .daemon_state <- new.env(parent = emptyenv())

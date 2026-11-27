@@ -25,8 +25,8 @@ mod_settings_ui <- function(id) {
                  "<code>BiocParallel::SerialParam()</code> registered \u2014 the default ",
                  "<code>SnowParam</code> backend is ~100\u00d7 slower.")),
         sliderInput(ns("daemons"), "Parallel readers (mirai daemons)",
-                    min = 1, max = max(2L, detectCores()),
-                    value = max(1L, detectCores() - 1L), step = 1)
+                    min = 1, max = max(2L, detectCores(), na.rm = TRUE),
+                    value = .default_daemons(), step = 1)
       ),
       settings_card(
         "EIC defaults",

@@ -218,3 +218,10 @@ test_that("combined_ranges orders MS levels numerically", {
                         ms_levels = "1, 2, 10", polarities = "1", charges = "1")
   expect_identical(combined_ranges(fdf)$ms_levels, c("1", "2", "10"))
 })
+
+test_that("the default daemon count survives an unknown core count", {
+  local_mocked_bindings(detectCores = function(...) NA_integer_)
+  expect_identical(.default_daemons(), 1L)
+  local_mocked_bindings(detectCores = function(...) 8L)
+  expect_identical(.default_daemons(), 7L)
+})
