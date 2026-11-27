@@ -5,9 +5,18 @@
 #   apply_filters         -> MsExperiment (TIC/BPC/EIC via chromatogram)
 #   apply_filters_spectra -> Spectra      (spectrum, peak map)
 
-# Does the filter ask to constrain m/z?  (intensity handled separately)
-.flt_mz <- function(f) c(if (is.finite(f$mz_min)) f$mz_min else 0,
-                         if (is.finite(f$mz_max)) f$mz_max else Inf)
+# Per-dimension filter arguments: each returns what its filter call takes, or
+# NULL when the filter leaves that dimension open. Both appliers below use them,
+# so the MsExperiment and Spectra paths can't drift apart (the equivalence the
+# filter tests check).
+.fin <- function(v) length(v) == 1 && isTRUE(is.finite(v))
+.flt_level <- function(f) if (.fin(f$ms_level)) as.integer(f$ms_level)
+.flt_rt <- function(f) if (.fin(f$rt_min) || .fin(f$rt_max))
+  c(if (.fin(f$rt_min)) f$rt_min else -Inf, if (.fin(f$rt_max)) f$rt_max else Inf)
+.flt_mz <- function(f) if (.fin(f$mz_min) || .fin(f$mz_max))
+  c(if (.fin(f$mz_min)) f$mz_min else 0, if (.fin(f$mz_max)) f$mz_max else Inf)
+.flt_pol <- function(f) if (!is.null(f$polarity) && !identical(f$polarity, "any"))
+  if (identical(f$polarity, "pos")) 1L else 0L
 .flt_int <- function(f) {
   has_min <- !is.null(f$int_min) && is.finite(f$int_min) && f$int_min > 0
   has_max <- !is.null(f$int_max) && is.finite(f$int_max)
@@ -143,19 +152,13 @@ centroid_ms_levels <- function(sp, cp) {
 #' see apply_filters_spectra().
 #' @noRd
 apply_filters <- function(x, f) {
-  if (!is.null(f$ms_level) && is.finite(f$ms_level))
-    x <- xcms::filterMsLevel(x, as.integer(f$ms_level))
-  if (isTRUE(is.finite(f$rt_min) || is.finite(f$rt_max)))
-    x <- xcms::filterRt(x, rt = c(if (is.finite(f$rt_min)) f$rt_min else -Inf,
-                                  if (is.finite(f$rt_max)) f$rt_max else Inf))
-  if (isTRUE(is.finite(f$mz_min) || is.finite(f$mz_max)))
-    x <- Spectra::filterMzRange(x, mz = .flt_mz(f))
-  if (!is.null(f$polarity) && !identical(f$polarity, "any"))
-    x <- MsExperiment::filterSpectra(x, Spectra::filterPolarity,
-                                     polarity = if (identical(f$polarity, "pos")) 1L else 0L)
-  ii <- .flt_int(f)
-  if (!is.null(ii))
-    x <- MsExperiment::filterSpectra(x, Spectra::filterIntensity, intensity = ii)
+  if (!is.null(v <- .flt_level(f))) x <- xcms::filterMsLevel(x, v)
+  if (!is.null(v <- .flt_rt(f)))    x <- xcms::filterRt(x, rt = v)
+  if (!is.null(v <- .flt_mz(f)))    x <- Spectra::filterMzRange(x, mz = v)
+  if (!is.null(v <- .flt_pol(f)))
+    x <- MsExperiment::filterSpectra(x, Spectra::filterPolarity, polarity = v)
+  if (!is.null(v <- .flt_int(f)))
+    x <- MsExperiment::filterSpectra(x, Spectra::filterIntensity, intensity = v)
   if (has_id_rules(f))
     x <- MsExperiment::filterSpectra(x, .filter_spectrumid, rules = f$spectrum_id_rules)
   x
@@ -181,13 +184,9 @@ apply_filters <- function(x, f) {
 #' invariant the filter tests rest on).
 #' @noRd
 apply_filters_spectra <- function(sp, f, cp = NULL) {
-  if (!is.null(f$ms_level) && is.finite(f$ms_level))
-    sp <- Spectra::filterMsLevel(sp, as.integer(f$ms_level))
-  if (isTRUE(is.finite(f$rt_min) || is.finite(f$rt_max)))
-    sp <- Spectra::filterRt(sp, rt = c(if (is.finite(f$rt_min)) f$rt_min else -Inf,
-                                       if (is.finite(f$rt_max)) f$rt_max else Inf))
-  if (!is.null(f$polarity) && !identical(f$polarity, "any"))
-    sp <- Spectra::filterPolarity(sp, if (identical(f$polarity, "pos")) 1L else 0L)
+  if (!is.null(v <- .flt_level(f))) sp <- Spectra::filterMsLevel(sp, v)
+  if (!is.null(v <- .flt_rt(f)))    sp <- Spectra::filterRt(sp, rt = v)
+  if (!is.null(v <- .flt_pol(f)))   sp <- Spectra::filterPolarity(sp, v)
   if (has_id_rules(f))
     sp <- .filter_spectrumid(sp, f$spectrum_id_rules)
 
@@ -198,10 +197,8 @@ apply_filters_spectra <- function(sp, f, cp = NULL) {
                                k = cp$k, msLevel. = lv)
   }
 
-  if (isTRUE(is.finite(f$mz_min) || is.finite(f$mz_max)))
-    sp <- Spectra::filterMzRange(sp, mz = .flt_mz(f))
-  ii <- .flt_int(f)
-  if (!is.null(ii)) sp <- Spectra::filterIntensity(sp, intensity = ii)
+  if (!is.null(v <- .flt_mz(f)))  sp <- Spectra::filterMzRange(sp, mz = v)
+  if (!is.null(v <- .flt_int(f))) sp <- Spectra::filterIntensity(sp, intensity = v)
   sp
 }
 

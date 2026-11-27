@@ -93,9 +93,16 @@ test_that("spectrum-ID rules: contains ANDed, exclude inverts, empty ignored", {
                                   list(list(mode = "exclude", text = "scan=2")))))
 })
 
-test_that(".flt_mz / .flt_int compose ranges", {
+test_that("the .flt_* helpers compose ranges and return NULL when unset", {
   expect_equal(.flt_mz(list(mz_min = 100, mz_max = 200)), c(100, 200))
   expect_equal(.flt_mz(list(mz_min = NA, mz_max = 200)), c(0, 200))
+  expect_null(.flt_mz(empty_filter()))
+  expect_null(.flt_rt(empty_filter()))
+  expect_equal(.flt_rt(list(rt_min = 30, rt_max = NA)), c(30, Inf))
+  expect_identical(.flt_level(empty_filter()), 1L)
+  expect_null(.flt_level(list(ms_level = NA_integer_)))
+  expect_null(.flt_pol(empty_filter()))
+  expect_identical(.flt_pol(list(polarity = "neg")), 0L)
   expect_null(.flt_int(list(int_min = NA, int_max = NA)))
   expect_equal(.flt_int(list(int_min = 5000, int_max = NA)), c(5000, Inf))
 })

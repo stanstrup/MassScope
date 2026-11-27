@@ -77,7 +77,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
   (`f$name` vs `cur_disp()`). With E1/E2. Votes 4/0/0.
 - [ ] **C2** TIC and EIC share ~20 lines (extraction, decoration, theme). After
   B1–B3. Votes 4/0/0.
-- [ ] **C3** `.flt_rt/.flt_pol/.flt_mz` returning NULL when unset, shared by
+- [x] **C3** `.flt_rt/.flt_pol/.flt_mz` returning NULL when unset, shared by
   `apply_filters` and `apply_filters_spectra`. Only with the equivalence tests
   green. Votes 2/2/0.
 - [ ] **C4** Table-driven settings spec replacing four parallel lists. Votes 1/2/1.
