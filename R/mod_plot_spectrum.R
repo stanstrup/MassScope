@@ -383,7 +383,8 @@ mod_plot_spectrum_server <- function(id, rv, included) {
         showNotification("No spectrum to rank.", type = "warning", duration = 3)
         return()
       }
-      ppm <- if (identical(input$ann_unit, "ppm")) input$ann_tol else 5
+      ppm <- tol_to_ppm(input$ann_tol, input$ann_unit,
+                        mz = df$mz[which.max(df$intensity)], default = 5)
       ranked_val(withProgress(message = "Ranking molecular-ion hypotheses\u2026", value = 0.5,
                    rank_anchors(df, mode = input$ann_pol, ppm = ppm, rel_floor = 0,
                                 top_n = 25L)))
@@ -481,7 +482,7 @@ mod_plot_spectrum_server <- function(id, rv, included) {
     # make Rdisop flag them invalid with fractional DBE.
     iso_candidates <- reactive({
       nm <- iso_neutral()
-      ppm <- if (identical(input$ann_unit, "ppm")) input$ann_tol else 10
+      ppm <- tol_to_ppm(input$ann_tol, input$ann_unit, mz = nm$M, default = 10)
       els <- input$iso_elements; if (!length(els)) els <- ISO_ELEMENTS_DEFAULT
       vo <- isTRUE(input$iso_valid)
       formula_candidates(nm$M, ppm = ppm, elements = els,

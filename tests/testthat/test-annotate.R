@@ -198,3 +198,10 @@ test_that("rank_anchors suggests the right molecular ion via findMAIN", {
   expect_gt(nrow(rk), 0)
   expect_equal(rk$neutral_mass[1], 300.1, tolerance = 0.01)
 })
+
+test_that("tol_to_ppm converts a Da tolerance at the given m/z", {
+  expect_equal(tol_to_ppm(5, "ppm", 500, 10), 5)
+  expect_equal(tol_to_ppm(0.005, "Da", 500, 10), 10)     # 0.005 / 500 * 1e6
+  expect_equal(tol_to_ppm(NA, "ppm", 500, 10), 10)
+  expect_equal(tol_to_ppm(0.01, "Da", NA, 7), 7)
+})

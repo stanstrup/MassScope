@@ -24,6 +24,17 @@ tol_to_da <- function(mz, tol, unit = "ppm") {
   if (identical(unit, "ppm")) mz * tol / 1e6 else rep(tol, length(mz))
 }
 
+#' The tolerance as ppm at `mz`, for tools that only take ppm (findMAIN, Rdisop).
+#' A Da tolerance is converted at that m/z rather than replaced by a fixed ppm;
+#' an unusable tolerance gives `default`.
+#' @noRd
+tol_to_ppm <- function(tol, unit, mz, default) {
+  if (!isTRUE(is.finite(tol) && tol > 0)) return(default)
+  if (identical(unit, "ppm")) return(tol)
+  if (!isTRUE(is.finite(mz) && mz > 0)) return(default)
+  tol / mz * 1e6
+}
+
 #' Reduce a (possibly profile-mode) spectrum to centroids: cluster points whose
 #' neighbours are within `mz_gap` and keep each cluster's apex (most intense
 #' point), above a relative-intensity floor. Profile shoulders collapse to one

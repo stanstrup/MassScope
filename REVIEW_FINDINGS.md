@@ -94,7 +94,7 @@ items are worked: `[x]` done, `[ ]` open, `[-]` deferred (reason given).
 - [x] **H3** Delete `tests/testthat/_problems/` and git-ignore it; tests for the
   settings round-trip (empty vectors, NA), filter startup identity (B5), time-unit
   switch (B6). Votes 4/0/0.
-- [ ] **H4** Move `isTRUE_vec` to `utils_reactive.R`; `combined_ranges` sorts MS
+- [x] **H4** Move `isTRUE_vec` to `utils_reactive.R`; `combined_ranges` sorts MS
   levels as text; `detectCores()` NA guard; Da→ppm fallback for findMAIN/Rdisop is
   5 vs 10 ppm and ignores the entered Da. Votes 4/0/0.
 - [x] **H5** CLAUDE.md commit trailer — resolved by the user: no Claude mention in
