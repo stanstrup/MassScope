@@ -377,19 +377,29 @@ mod_plot_spectrum_server <- function(id, rv, included) {
     # eventReactive kept the old hypotheses (and drew the old anchor) on the
     # next scan or file until Suggest was pressed again.
     ranked_val <- reactiveVal(NULL)
+    # An observer, unlike the old eventReactive, ends the session on an uncaught
+    # error (e.g. the file became unreadable), so failures become a notification.
     observeEvent(input$suggest, {
-      df <- ann_candidates()
-      if (!nrow(df)) {
-        showNotification("No spectrum to rank.", type = "warning", duration = 3)
-        return()
-      }
-      ppm <- tol_to_ppm(input$ann_tol, input$ann_unit,
-                        mz = df$mz[which.max(df$intensity)], default = 5)
-      ranked_val(withProgress(message = "Ranking molecular-ion hypotheses\u2026", value = 0.5,
-                   rank_anchors(df, mode = input$ann_pol, ppm = ppm, rel_floor = 0,
-                                top_n = 25L)))
+      r <- overlay_or_null({
+        df <- ann_candidates()
+        if (!nrow(df)) {
+          showNotification("No spectrum to rank.", type = "warning", duration = 3)
+          NULL
+        } else {
+          ppm <- tol_to_ppm(input$ann_tol, input$ann_unit,
+                            mz = df$mz[which.max(df$intensity)], default = 5)
+          withProgress(message = "Ranking molecular-ion hypotheses\u2026", value = 0.5,
+                       rank_anchors(df, mode = input$ann_pol, ppm = ppm, rel_floor = 0,
+                                    top_n = 25L))
+        }
+      }, "Suggest molecular ion")
+      if (!is.null(r)) ranked_val(r)
     })
-    observeEvent(list(spec_sel(), cur_file()), ranked_val(NULL), ignoreInit = TRUE)
+    # Cleared on anything that changes the spectrum read or what the ranking
+    # assumed: the selection, the file, the global filter (it picks the scan an
+    # rt lands on) and the ion mode the hypotheses were ranked in.
+    observeEvent(list(spec_sel(), cur_file(), rv$filter, input$ann_pol),
+                 ranked_val(NULL), ignoreInit = TRUE)
     ranked <- reactive({ r <- ranked_val(); req(r); r })
     auto_pick <- reactiveVal(1L)
     observeEvent(ranked(), auto_pick(1L))                       # reset on a new run
